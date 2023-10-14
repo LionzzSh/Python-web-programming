@@ -16,5 +16,9 @@ message = input("Введіть текст для відправки на сер
 # Кодуємо текст у байти, використовуючи UTF-8, та відправляємо на сервер
 client_socket.send(message.encode('utf-8'))
 
+# Очікуємо на підтвердження від сервера та виводимо його
+confirmation = client_socket.recv(1024)
+print(confirmation.decode('utf-8'))
+
 # Закриваємо клієнтський сокет
 client_socket.close()
