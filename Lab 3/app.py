@@ -92,8 +92,8 @@ def get_static_file(path):
 
 
 def get_static_json(path):
-    return json.load(open(get_static_file(path)))
-
+    with open(get_static_file(path), "r", encoding="utf-8") as file:
+        return json.load(file)
 
 if __name__ == "__main__":
     print("running py app")
