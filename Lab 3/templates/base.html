@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto:900" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/base.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/footer.css') }}">
 
     {% block head %}
     {% endblock %}
@@ -26,7 +27,14 @@
         <li><a class="navbar-ref" href="/skills">Skills</a></li>
     </ul>
 </div>
-{% block body %}
-{% endblock %}
+<div class="content">
+    {% block body %}
+    {% endblock %}
+</div>
+<footer class="site-footer">
+    <p>Operating System: {{ os_info.system }}</p>
+    <p>User Agent: {{ user_agent }}</p>
+    <p>Current Time: {{ current_time }}</p>
+</footer>
 </body>
 </html>

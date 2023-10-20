@@ -1,6 +1,8 @@
+import datetime
 import io
 import json
 import os
+import platform
 
 from flask import Flask, render_template, request
 
@@ -94,6 +96,21 @@ def get_static_file(path):
 def get_static_json(path):
     with open(get_static_file(path), "r", encoding="utf-8") as file:
         return json.load(file)
+    
+@app.context_processor
+def utility_processor():
+  
+    os_info = platform.platform()
+    
+    user_agent = request.headers.get('User-Agent')
+    
+    current_time = datetime.datetime.now()
+
+    return {
+        'os_info': os_info,
+        'user_agent': user_agent,
+        'current_time': current_time
+    }
 
 if __name__ == "__main__":
     print("running py app")
