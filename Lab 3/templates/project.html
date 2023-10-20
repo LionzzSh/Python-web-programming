@@ -14,7 +14,6 @@
         {% if 'photos' in project or 'videos' in project %}
         <div>
             <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false" ;>
-                <!-- Wrapper for slides -->
                 <div class="carousel-inner">
                     {% for video in project['videos'] %}
                     <div class="item {{'active' if loop.index0 == 0}}">
@@ -48,6 +47,5 @@
         </div>
         <div class="content">{{ project['description'] | safe }}</div>
     </div>
-
 </div>
 {% endblock %}
