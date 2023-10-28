@@ -8,7 +8,6 @@ from flask import Flask, request, render_template, redirect, url_for, session, f
 app = Flask(__name__)
 app.secret_key = b'secret'
 
-# Use the correct path to users.json inside the files folder
 users_json_path = 'Lab 4/static/files/users.json'
 
 with open(users_json_path, 'r') as users_file:
@@ -134,26 +133,24 @@ def info():
         action = request.form.get('action')
 
         if user_info:
-            if action == 'вийшти із системи':
+            if action == 'logout':
                 session.pop('user_info', None)
                 flash('Ви успішно вийшли з системи', 'success')
                 return redirect(url_for('login'))
 
-            elif action == 'змінити пароль':
+            elif action == 'change_password':
                 new_password = request.form.get('new_password')
 
                 if not new_password:
                     flash('Відсутній новий пароль', 'error')
                     return redirect(url_for('info'))
 
-                # Update the user's password in the users_data dictionary
                 users_data[user_info['username']]['password'] = new_password
 
-                # Save the updated data to the JSON file (users.json)
                 save_users_data()
                 flash('Пароль успішно змінено', 'success')
 
-            elif action == 'додати cookie':
+            elif action == 'add_cookie':
                 cookie_key = request.form.get('cookie_key')
                 cookie_value = request.form.get('cookie_value')
                 expire_time = request.form.get('cookie_expire_time')
@@ -173,7 +170,7 @@ def info():
                     flash('Недійсний термін дії', 'error')
                     return response
 
-            elif action == 'Видалити cookie':
+            elif action == 'delete_cookie':
                 cookie_key_delete = request.form.get('cookie_key_delete')
                 if cookie_key_delete:
                     response = make_response(render_template('info.html', common=common, user_info=user_info, projects=projects_data))
