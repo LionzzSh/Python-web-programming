@@ -1,40 +1,54 @@
-import datetime
-import io
 import json
 import os
 import platform
-
-from flask import Flask, render_template, request
+import datetime
+import io
+from flask import Flask, request, render_template, redirect, url_for, session, flash, make_response
 
 app = Flask(__name__)
+app.secret_key = b'secret'
+
+# Use the correct path to users.json inside the files folder
+users_json_path = 'Lab 4/static/files/users.json'
+
+with open(users_json_path, 'r') as users_file:
+    users_data = json.load(users_file)
+
+def save_users_data():
+    with open(users_json_path, 'w') as users_file:
+        json.dump(users_data, users_file, indent=4)
 
 common = {
     'first_name': 'Vitalii',
     'last_name': 'Shmatolokha',
 }
 
+def get_static_file(path):
+    site_root = os.path.realpath(os.path.dirname(__file__))
+    return os.path.join(site_root, path)
+
+def get_static_json(path):
+    with open(get_static_file(path), "r", encoding="utf-8") as file:
+        return json.load(file)
 
 @app.route('/')
 def index():
     return render_template('home.html', common=common)
-
 
 @app.route('/biography')
 def biography():
     biography = get_static_json("static/files/biography.json")
     return render_template('biography.html', common=common, biography=biography)
 
-
 @app.route('/skills')
 def skills():
     data = get_static_json("static/files/skills.json")
     return render_template('skills.html', common=common, data=data)
 
-
 @app.route('/projects')
 def projects():
     data = get_static_json("static/projects/projects.json")['projects']
-    data.sort(key=lambda x: x.get('weight', 0), reverse=True)  
+    data.sort(key=lambda x: x.get('weight', 0), reverse=True)
 
     tag = request.args.get('tags')
     if tag is not None:
@@ -43,13 +57,11 @@ def projects():
 
     return render_template('projects.html', common=common, projects=data, tag=tag)
 
-
 @app.route('/experiences')
 def experiences():
     experiences = get_static_json("static/experiences/experiences.json")['experiences']
-    experiences.sort(key=lambda x: x.get('weight', 0), reverse=True)  
+    experiences.sort(key=lambda x: x.get('weight', 0), reverse=True)
     return render_template('projects.html', common=common, projects=experiences, tag=None)
-
 
 @app.route('/projects/<title>')
 def project(title):
@@ -57,11 +69,11 @@ def project(title):
     experiences = get_static_json("static/experiences/experiences.json")['experiences']
 
     in_project = next((p for p in projects if p['link'] == title), None)
-    in_exp = next((p for p in experiences if p['link'] == title), None)
+    in_exp = next((exp for exp in experiences if exp['link'] == title), None)
 
     if in_project is None and in_exp is None:
         return render_template('404.html'), 404
-  
+
     elif in_project is not None and in_exp is not None:
         selected = in_exp
     elif in_project is not None:
@@ -75,21 +87,10 @@ def project(title):
             'static/%s/%s/%s.html' % (path, selected['link'], selected['link'])), "r", encoding="utf-8").read()
     return render_template('project.html', common=common, project=selected)
 
-
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', common=common), 404
 
-
-def get_static_file(path):
-    site_root = os.path.realpath(os.path.dirname(__file__))
-    return os.path.join(site_root, path)
-
-
-def get_static_json(path):
-    with open(get_static_file(path), "r", encoding="utf-8") as file:
-        return json.load(file)
-    
 @app.context_processor
 def utility_processor():
     os_info = platform.platform()
@@ -101,6 +102,93 @@ def utility_processor():
         'current_time': current_time
     }
 
-if __name__ == "__main__":
-    print("Running the web app")
-    app.run(host="127.0.0.1", port=5000, debug=True)
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username in users_data:
+            if users_data[username]['password'] == password:
+                user_info = users_data[username]
+                session['user_info'] = user_info
+                flash('Успішний вхід', 'success')
+                return redirect(url_for('info'))
+            else:
+                flash('Невірний пароль', 'error')
+        else:
+            flash( 'Невірне імя користувача', 'error')
+    
+    if 'user_info' in session:
+        flash('Ви вже увійшли', 'info')
+        return redirect(url_for('info'))
+    
+    return render_template('login.html', common=common)
+
+@app.route('/info', methods=['GET', 'POST'])
+def info():
+    user_info = session.get('user_info')
+    projects_data = get_static_json("static/projects/projects.json")['projects']
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        if user_info:
+            if action == 'вийшти із системи':
+                session.pop('user_info', None)
+                flash('Ви успішно вийшли з системи', 'success')
+                return redirect(url_for('login'))
+
+            elif action == 'змінити пароль':
+                new_password = request.form.get('new_password')
+
+                if not new_password:
+                    flash('Відсутній новий пароль', 'error')
+                    return redirect(url_for('info'))
+
+                # Update the user's password in the users_data dictionary
+                users_data[user_info['username']]['password'] = new_password
+
+                # Save the updated data to the JSON file (users.json)
+                save_users_data()
+                flash('Пароль успішно змінено', 'success')
+
+            elif action == 'додати cookie':
+                cookie_key = request.form.get('cookie_key')
+                cookie_value = request.form.get('cookie_value')
+                expire_time = request.form.get('cookie_expire_time')
+
+                if expire_time is not None and expire_time.isnumeric():
+                    expire_time = int(expire_time)
+                else:
+                    expire_time = None
+
+                response = make_response(render_template('info.html', common=common, user_info=user_info, projects=projects_data))
+
+                if expire_time is not None:
+                    response.set_cookie(cookie_key, cookie_value, max_age=expire_time)
+                    flash('Файл cookie успішно додано', 'success')
+                    return response
+                else:
+                    flash('Недійсний термін дії', 'error')
+                    return response
+
+            elif action == 'Видалити cookie':
+                cookie_key_delete = request.form.get('cookie_key_delete')
+                if cookie_key_delete:
+                    response = make_response(render_template('info.html', common=common, user_info=user_info, projects=projects_data))
+                    response.delete_cookie(cookie_key_delete)
+                    flash('Файл cookie успішно видалено', 'success')
+                    return response
+                else:
+                    flash('Відсутній ключ cookie', 'error')
+
+    if user_info:
+        return render_template('info.html', common=common, user_info=user_info, projects=projects_data)
+    else:
+        flash('Ви повинні увійти, щоб отримати доступ до цієї сторінки', 'error')
+        return redirect(url_for('login'))
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
