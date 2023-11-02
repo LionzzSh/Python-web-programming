@@ -1,0 +1,30 @@
+<a href="{{ url_for('index') }}" class="btn btn-primary">Home Page</a>
+<div class="row">
+  <h1>Відгуки</h1>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+  <div class="row">
+    <div class="col-md-6">
+      <h2>Залишити Відгук</h2>
+      <form method="POST" action="{{ url_for('feedback') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+          {{ form.name.label(class="form-control-label") }}
+          {{ form.name(class="form-control") }}
+        </div>
+        <div class="form-group">
+          {{ form.comment.label(class="form-control-label") }}
+          {{ form.comment(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-primary">Відправити</button>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <h2>Список відгуків</h2>
+      <ul>
+        {% for feedback in feedback_data %}
+          <li><strong>{{ feedback.name }}:</strong> {{ feedback.comment }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
