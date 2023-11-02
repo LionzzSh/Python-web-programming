@@ -1,15 +1,18 @@
 import json
 import os
-import platform
-import datetime
 import io
-from flask import Flask, request, render_template, redirect, url_for, session, flash, make_response
+import platform
+from datetime import datetime
+import datetime
+from flask import render_template, request, session, redirect, url_for, flash, make_response
+from app import app, db
+from app.forms import FeedbackForm
+from app.models import Feedback
 
-app = Flask(__name__)
 app.secret_key = b'secret'
 
 # Path to the JSON file containing user data
-users_json_path = 'Lab 4/static/files/users.json'
+users_json_path = 'app/static/files/users.json'
 
 # Load user data from the JSON file
 with open(users_json_path, 'r') as users_file:
@@ -97,6 +100,27 @@ def project(title):
         selected['description'] = io.open(get_static_file(
             'static/%s/%s/%s.html' % (path, selected['link'], selected['link'])), "r", encoding="utf-8").read()
     return render_template('project.html', common=common, project=selected)
+
+@app.route('/feedback', methods=['GET', 'POST'])
+def feedback():
+    form = FeedbackForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        comment = form.comment.data
+
+        feedback = Feedback(name=name, comment=comment)
+
+        try:
+            db.session.add(feedback)
+            db.session.commit()
+            flash('Відгук успішно надіслано', 'success')
+        except:
+            flash('Під час надсилання відгуку сталася помилка', 'error')
+
+        return redirect(url_for('feedback'))
+
+    feedback_data = Feedback.query.all()
+    return render_template('feedback.html', form=form, feedback_data=feedback_data, common=common)
 
 # Error handler for 404 Not Found
 @app.errorhandler(404)
