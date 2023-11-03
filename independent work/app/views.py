@@ -11,52 +11,42 @@ from app.models import Feedback
 
 app.secret_key = b'secret'
 
-# Path to the JSON file containing user data
 users_json_path = 'independent work/app/static/files/users.json' 
 
-# Load user data from the JSON file
 with open(users_json_path, 'r') as users_file:
     users_data = json.load(users_file)
 
-# Function to save user data to the JSON file
 def save_users_data():
     with open(users_json_path, 'w') as users_file:
         json.dump(users_data, users_file, indent=4)
 
-# Common data for templates
 common = {
     'first_name': 'Vitalii',
     'last_name': 'Shmatolokha',
 }
 
-# Function to get the absolute path of a static file
 def get_static_file(path):
     site_root = os.path.realpath(os.path.dirname(__file__))
     return os.path.join(site_root, path)
 
-# Function to get JSON data from a static file
 def get_static_json(path):
     with open(get_static_file(path), "r", encoding="utf-8") as file:
         return json.load(file)
 
-# Route for the home page
 @app.route('/')
 def index():
     return render_template('home.html', common=common)
 
-# Route for the biography page
 @app.route('/biography')
 def biography():
     biography = get_static_json("static/files/biography.json")
     return render_template('biography.html', common=common, biography=biography)
 
-# Route for the skills page
 @app.route('/skills')
 def skills():
     data = get_static_json("static/files/skills.json")
     return render_template('skills.html', common=common, data=data)
 
-# Route for the projects page
 @app.route('/projects')
 def projects():
     data = get_static_json("static/projects/projects.json")['projects']
@@ -69,14 +59,12 @@ def projects():
 
     return render_template('projects.html', common=common, projects=data, tag=tag)
 
-# Route for the experiences page
 @app.route('/experiences')
 def experiences():
     experiences = get_static_json("static/experiences/experiences.json")['experiences']
     experiences.sort(key=lambda x: x.get('weight', 0), reverse=True)
     return render_template('projects.html', common=common, projects=experiences, tag=None)
 
-# Route for individual project or experience
 @app.route('/projects/<title>')
 def project(title):
     projects = get_static_json("static/projects/projects.json")['projects']
@@ -122,12 +110,10 @@ def feedback():
     feedback_data = Feedback.query.all()
     return render_template('feedback.html', form=form, feedback_data=feedback_data, common=common)
 
-# Error handler for 404 Not Found
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', common=common), 404
 
-# Context processor to provide additional data to templates
 @app.context_processor
 def utility_processor():
     os_info = platform.platform()
@@ -139,7 +125,6 @@ def utility_processor():
         'current_time': current_time
     }
 
-# Route for the login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -163,7 +148,6 @@ def login():
 
     return render_template('login.html', common=common)
 
-# Route for the user info page
 @app.route('/info', methods=['GET', 'POST'])
 def info():
     user_info = session.get('user_info')
