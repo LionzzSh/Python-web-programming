@@ -13,7 +13,7 @@ from app.forms import TodoForm
 
 app.secret_key = b'secret'
 
-users_json_path = 'app/static/files/users.json' 
+users_json_path = 'Lab 6/app/static/files/users.json' 
 
 with open(users_json_path, 'r') as users_file:
     users_data = json.load(users_file)
