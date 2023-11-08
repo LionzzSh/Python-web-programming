@@ -8,57 +8,78 @@ from flask import render_template, request, session, redirect, url_for, flash, m
 from app import app, db
 from app.forms import FeedbackForm
 from app.models import Feedback
-from app import app, db
-from app.forms import LoginForm  
+from app.models import Todo
+from app.forms import TodoForm
 
 app.secret_key = b'secret'
 
-# Path to the JSON file containing user data
-users_json_path = 'Lab 5/app/static/files/users.json'
+users_json_path = 'app/static/files/users.json' 
 
-# Load user data from the JSON file
 with open(users_json_path, 'r') as users_file:
     users_data = json.load(users_file)
 
-# Function to save user data to the JSON file
 def save_users_data():
     with open(users_json_path, 'w') as users_file:
         json.dump(users_data, users_file, indent=4)
 
-# Common data for templates
 common = {
     'first_name': 'Vitalii',
     'last_name': 'Shmatolokha',
 }
 
-# Function to get the absolute path of a static file
 def get_static_file(path):
     site_root = os.path.realpath(os.path.dirname(__file__))
     return os.path.join(site_root, path)
 
-# Function to get JSON data from a static file
 def get_static_json(path):
     with open(get_static_file(path), "r", encoding="utf-8") as file:
         return json.load(file)
 
-# Route for the home page
+@app.route('/todo')
+def home():
+    todo_list = db.session.query(Todo).all()
+    form = TodoForm()  
+    return render_template("todo.html", todo_list=todo_list, form=form, common=common) 
+
+@app.route("/add", methods=["POST"])
+def add():
+    form = TodoForm()
+    if form.validate_on_submit():
+        title = form.title.data
+        description = form.description.data
+        new_todo = Todo(title=title, description=description, complete=False)
+        db.session.add(new_todo)
+        db.session.commit()
+    return redirect(url_for("home"))
+
+@app.route("/update/<int:todo_id>")
+def update(todo_id):
+    todo = Todo.query.get_or_404(todo_id)
+    todo.complete = not todo.complete
+    db.session.commit()
+    return redirect(url_for("home"))
+
+@app.route("/delete/<int:todo_id>")
+def delete(todo_id):
+    todo = Todo.query.get_or_404(todo_id)
+    db.session.delete(todo)
+    db.session.commit()
+    return redirect(url_for("home"))
+
 @app.route('/')
 def index():
     return render_template('home.html', common=common)
 
-# Route for the biography page
 @app.route('/biography')
 def biography():
     biography = get_static_json("static/files/biography.json")
     return render_template('biography.html', common=common, biography=biography)
 
-# Route for the skills page
 @app.route('/skills')
 def skills():
     data = get_static_json("static/files/skills.json")
     return render_template('skills.html', common=common, data=data)
 
-# Route for the projects page
 @app.route('/projects')
 def projects():
     data = get_static_json("static/projects/projects.json")['projects']
@@ -71,14 +92,12 @@ def projects():
 
     return render_template('projects.html', common=common, projects=data, tag=tag)
 
-# Route for the experiences page
 @app.route('/experiences')
 def experiences():
     experiences = get_static_json("static/experiences/experiences.json")['experiences']
     experiences.sort(key=lambda x: x.get('weight', 0), reverse=True)
     return render_template('projects.html', common=common, projects=experiences, tag=None)
 
-# Route for individual project or experience
 @app.route('/projects/<title>')
 def project(title):
     projects = get_static_json("static/projects/projects.json")['projects']
@@ -124,12 +143,10 @@ def feedback():
     feedback_data = Feedback.query.all()
     return render_template('feedback.html', form=form, feedback_data=feedback_data, common=common)
 
-# Error handler for 404 Not Found
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html', common=common), 404
 
-# Context processor to provide additional data to templates
 @app.context_processor
 def utility_processor():
     os_info = platform.platform()
@@ -141,34 +158,29 @@ def utility_processor():
         'current_time': current_time
     }
 
-# Route for the login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-
-    if form.validate_on_submit():
-        username = form.username.data
-        password = form.password.data
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
 
         if username in users_data:
             if users_data[username]['password'] == password:
                 user_info = users_data[username]
                 session['user_info'] = user_info
-                flash('Ваші дані було збережено', 'success')  # Flash message for successful login
+                flash('Успішний вхід', 'success')
                 return redirect(url_for('info'))
             else:
-                flash('Невірний пароль', 'error')  # Flash message for incorrect password
+                flash('Невірний пароль', 'error')
         else:
-            flash('Невірне імя користувача', 'error')  # Flash message for incorrect username
+            flash('Невірне імя користувача', 'error')
 
     if 'user_info' in session:
-        flash('Ви вже увійшли', 'info')  # Flash message for already logged in
+        flash('Ви вже увійшли', 'info')
         return redirect(url_for('info'))
 
+    return render_template('login.html', common=common)
 
-    return render_template('login.html', form=form, common=common)
-
-# Route for the user info page
 @app.route('/info', methods=['GET', 'POST'])
 def info():
     user_info = session.get('user_info')
@@ -226,6 +238,7 @@ def info():
     else:
         flash('Ви повинні увійти, щоб отримати доступ до цієї сторінки', 'error')
         return redirect(url_for('login'))
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

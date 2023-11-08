@@ -8,3 +8,13 @@ class Feedback(db.Model):
     def __init__(self, name, comment):
         self.name = name
         self.comment = comment
+
+class Todo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    complete = db.Column(db.Boolean)
+
+    def __init__(self, title, description=None, complete=False):
+        self.title = title
+        self.description = description
+        self.complete = complete

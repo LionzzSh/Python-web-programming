@@ -23,6 +23,7 @@
     <ul id="navbar-list" class="list-inline">
         <li><a class="navbar-ref" href="/login">Login</a></li>
         <li><a class="navbar-ref" href="/info">Info</a></li>
+        <li><a class="navbar-ref" href="/todo">Todo List</a></li>
         <li><a class="navbar-ref" href="/">Home</a></li>
         <li><a class="navbar-ref" href="/biography">Biography</a></li>
         <li><a class="navbar-ref" href="/projects">Projects</a></li>
@@ -34,10 +35,5 @@
     {% block body %}
     {% endblock %}
 </div>
-<footer class="site-footer">
-    <p>Operating System: {{ os_info.system }}</p>
-    <p>User Agent: {{ user_agent }}</p>
-    <p>Current Time: {{ current_time }}</p>
-</footer>
 </body>
 </html>
