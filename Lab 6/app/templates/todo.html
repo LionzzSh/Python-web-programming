@@ -29,39 +29,48 @@
               </div>
 
               <div class="col-4">
+                <div class="form-outline">
+                  {{ form.description.label(class="form-label") }}
+                  {{ form.description(class="form-control") }}
+                </div>
+              </div>
+
+              <div class="col-4">
                 {{ form.submit(class="btn btn-primary") }}
               </div>
             </form>
 
             <table class="table mb-4">
-                <thead>
-                    <tr>
-                      <th scope="col">No.</th>
-                      <th scope="col">Todo item</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for todo in todo_list %}
-                    <tr>
-                      <th scope="row">{{ todo.id }}</th>
-                      <td>{{ todo.title }}</td>
-                      <td>
-                        {% if todo.complete == False %}
-                        <div class="alert alert-secondary" role="alert">In progress</div>
-                        {% else %}
-                        <div class="alert alert-success" role="alert">Completed</div>
-                        {% endif %}
-                      </td>
-                      <td>
-                        <a class="btn btn-success" href="/update/{{ todo.id }}">Update</a>
-                        <a class="btn btn-danger ms-1" href="/delete/{{ todo.id }}">Delete</a>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+              <thead>
+                <tr>
+                  <th scope="col">No.</th>
+                  <th scope="col">Todo item</th>
+                  <th scope="col">Description</th> 
+                  <th scope="col">Status</th>
+                  <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for todo in todo_list %}
+                <tr>
+                  <th scope="row">{{ todo.id }}</th>
+                  <td>{{ todo.title }}</td>
+                  <td>{{ todo.description }}</td>  
+                  <td>
+                    {% if todo.complete == False %}
+                    <div class="alert alert-secondary" role="alert">In progress</div>
+                    {% else %}
+                    <div class="alert alert-success" role="alert">Completed</div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <a class="btn btn-success" href="/update/{{ todo.id }}">Update</a>
+                    <a class="btn btn-danger ms-1" href="/delete/{{ todo.id }}">Delete</a>
+                  </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
           </div>
         </div>
       </div>
