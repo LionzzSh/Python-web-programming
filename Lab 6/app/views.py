@@ -18,7 +18,7 @@ from app.forms import TodoForm
 app.secret_key = b'secret'
 
 # Path to the JSON file containing user data
-users_json_path = 'Lab 5/app/static/files/users.json'
+users_json_path = 'Lab 6/app/static/files/users.json'
 
 # Load user data from the JSON file
 with open(users_json_path, 'r') as users_file:
