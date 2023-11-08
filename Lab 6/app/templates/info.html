@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block head %}
+<a href="{{ url_for('index') }}" class="btn btn-primary">Home Page</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Info</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+</head>
+<body>
+    <h1>Info</h1>
+</form>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+</div>
+    {% if user_info %}
+        <h2>Вітаю, {{ user_info.username }}!</h2>
+    {% endif %}
+
+    <form method="post">
+        <div class="form-group">
+            <label for="action">Дії із акаунтом</label>
+            <select name="action" id="action" class="form-control">
+                <option value="logout">Вийти із системи</option>
+                <option value="change_password">Змінити пароль</option>
+                <option value="add_cookie">Додати Cookie</option>
+                <option value="delete_cookie">Видалити Cookie</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Підтвердити</button>
+    </form>
+    <br><br>
+
+    <div id="changePasswordForm" style="display: none;">
+        <h2>Зміна пароля</h2>
+        <form method="post">
+            <input type="hidden" name="action" value="change_password">
+            <div class="form-group">
+                <label for="new_password">Новий пароль</label>
+                <input type="password" name="new_password" id="new_password" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Змінити пароль</button>
+        </form>
+    </div>
+    <br><br>
+    <div id="addCookieForm" style="display: none;">
+        <h2>Додати cookie файли</h2>
+        <form method="post">
+            <input type="hidden" name="action" value="add_cookie">
+            <div class="form-group">
+                <label for="cookie_key">Ключ cookie</label>
+                <input type="text" name="cookie_key" id="cookie_key" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="cookie_value">Значення Cookie</label>
+                <input type="text" name="cookie_value" id="cookie_value" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="cookie_expire_time">Час закінчення терміну дії файлів cookie (необов'язково)</label>
+                <input type="text" name="cookie_expire_time" id="cookie_expire_time" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Додати файли cookie</button>
+        </form>
+    </div>
+    
+    <br><br>
+    <div id="deleteCookieForm" style="display: none;">
+        <h2>Видалити Cookie</h2>
+        <form method="post">
+            <input type="hidden" name="action" value="delete_cookie">
+            <div class="form-group">
+                <label for="cookie_key_delete">Ключ для видалення файлів cookie</label>
+                <input type="text" name="cookie_key_delete" id="cookie_key_delete" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Видалити файли cookie</button>
+        </form>
+    </div>
+<br><br>
+    <script>
+        const actionSelect = document.getElementById('action');
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        const addCookieForm = document.getElementById('addCookieForm');
+        const deleteCookieForm = document.getElementById('deleteCookieForm');
+
+        actionSelect.addEventListener('change', function() {
+            const selectedAction = actionSelect.value;
+            changePasswordForm.style.display = 'none';
+            addCookieForm.style.display = 'none';
+            deleteCookieForm.style.display = 'none';
+
+            if (selectedAction === 'change_password') {
+                changePasswordForm.style.display = 'block';
+            } else if (selectedAction === 'add_cookie') {
+                addCookieForm.style.display = 'block';
+            } else if (selectedAction === 'delete_cookie') {
+                deleteCookieForm.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
+{% endblock %}
