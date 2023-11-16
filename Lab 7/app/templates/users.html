@@ -4,7 +4,7 @@
 {% block title %}Users{% endblock %}
 {% block content %}
     <div class="container text-center">
-        <h1 class="mt-4">Number of users: {{ users|length }}</h1>
+        <h1 class="mt-4">Number of users: {{ users|length + 1 }}</h1>
         <div class="row justify-content-center mt-4">
             <div class="col-md-8">
                 {% for user in users %}
