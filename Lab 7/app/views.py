@@ -8,6 +8,7 @@ from flask import render_template, request, session, redirect, url_for, flash, m
 from app import app, db
 from app.forms import FeedbackForm, TodoForm, LoginForm, ChangePasswordForm, RegistrationForm
 from app.models import Feedback, Todo, User
+from flask import render_template, request, session, redirect, url_for, flash, make_response
 
 app.secret_key = b'secret'
 
@@ -22,6 +23,11 @@ with open(users_json_path, 'r') as users_file:
 def save_users_data():
     with open(users_json_path, 'w') as users_file:
         json.dump(users_data, users_file, indent=4)
+
+user_session = {}
+
+script_dir = os.path.dirname(os.path.realpath(__file__))
+data_json_path = os.path.join(script_dir, 'data.json')
 
 # Common data for templates
 common = {
@@ -38,37 +44,6 @@ def get_static_file(path):
 def get_static_json(path):
     with open(get_static_file(path), "r", encoding="utf-8") as file:
         return json.load(file)
-
-@app.route('/todo', methods=['GET', 'POST'])
-def todo():
-    form = TodoForm()
-
-    if form.validate_on_submit():
-        task = form.task.data
-        new_todo = Todo(task=task)
-        db.session.add(new_todo)
-        db.session.commit()
-        flash('Task added successfully!', 'success')
-        return redirect(url_for('todo'))
-
-    todos = Todo.query.all()
-    return render_template('todo.html', form=form, todos=todos, common=common)
-
-@app.route('/todo/update/<int:id>')
-def update_todo(id):
-    todo = Todo.query.get_or_404(id)
-    todo.status = not todo.status  # Toggle status
-    db.session.commit()
-    flash('Task updated successfully!', 'success')
-    return redirect(url_for('todo'))
-
-@app.route('/todo/delete/<int:id>')
-def delete_todo(id):
-    todo = Todo.query.get_or_404(id)
-    db.session.delete(todo)
-    db.session.commit()
-    flash('Task deleted successfully!', 'success')
-    return redirect(url_for('todo'))
 
 # Route for the home page
 @app.route('/')
@@ -170,7 +145,6 @@ def utility_processor():
         'current_time': current_time
     }
 
-# Route for the login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error_message = None
@@ -194,6 +168,7 @@ def login():
     return render_template('login.html', error_message=error_message, form=form, common=common)
 
 
+
 @app.route("/registration", methods=['GET', 'POST'])
 def registration():
     form = RegistrationForm()
@@ -211,68 +186,175 @@ def registration():
         return redirect(url_for('login'))
     return render_template("register.html", form=form, common=common)
 
-@app.route('/users')
-def users():
-    return render_template('users.html', users=User.query.all(), common=common)
-
-# Route for the user info page
 @app.route('/info', methods=['GET', 'POST'])
 def info():
-    user_info = session.get('user_info')
-    projects_data = get_static_json("static/projects/projects.json")['projects']
+    form = ChangePasswordForm()
+    if 'email' in session:
+        email = session['email']
 
-    if request.method == 'POST':
-        action = request.form.get('action')
+        cookies = []
+        for key, value in request.cookies.items():
+            expiration = request.cookies[key]
+            creation_time = session.get(f'cookie_creation_{key}')
+            cookies.append({
+                'key': key,
+                'value': value,
+                'expiration': expiration,
+                'creation_time': creation_time,
+            })
 
-        if user_info:
-            if action == 'logout':
-                session.pop('user_info', None)
-                flash('Ви успішно вийшли з системи', 'success')
-                return redirect(url_for('login'))
+        if request.method == 'POST':
+            if 'cookie_key' in request.form and 'cookie_value' in request.form and 'cookie_expiration' in request.form:
+                cookie_key = request.form['cookie_key']
+                cookie_value = request.form['cookie_value']
+                cookie_expiration = int(request.form['cookie_expiration'])
 
-            elif action == 'change_password':
-                new_password = request.form.get('new_password')
+                response = make_response(redirect(url_for('info')))
+                response.set_cookie(cookie_key, cookie_value, max_age=cookie_expiration)
+                session[f'cookie_creation_{cookie_key}'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-                if not new_password:
-                    flash('Відсутній новий пароль', 'error')
-                    return redirect(url_for('info'))
+                flash(f"Cookie '{cookie_key}' added successfully.", 'success')
 
-                users_data[user_info['username']]['password'] = new_password
+            if 'delete_cookie_key' in request.form:
+                delete_cookie_key = request.form['delete_cookie_key']
 
-                save_users_data()
-                flash('Пароль успішно змінено', 'success')
+                if delete_cookie_key in request.cookies:
+                    response = make_response(redirect(url_for('info')))
+                    response.delete_cookie(delete_cookie_key)
+                    session.pop(f'cookie_creation_{delete_cookie_key}', None)
+                    flash(f"Cookie '{delete_cookie_key}' deleted successfully.", 'success')
 
-            elif action == 'add_cookie':
-                cookie_key = request.form.get('cookie_key')
-                cookie_value = request.form.get('cookie_value')
-                expire_time = request.form.get('cookie_expire_time')
+            if 'delete_all_cookies' in request.form:
+                response = make_response(redirect(url_for('info')))
+                for key in request.cookies:
+                    response.delete_cookie(key)
+                    session.pop(f'cookie_creation_{key}', None)
+                flash("All cookies deleted successfully.", 'success')
 
-                if not cookie_key or not cookie_value:
-                    flash('Відсутній ключ або значення cookie', 'error')
-                elif not expire_time.isnumeric():
-                    flash('Недійсний термін дії', 'error')
-                else:
-                    expire_time = int(expire_time)
-                    response = make_response(render_template('info.html', common=common, user_info=user_info, projects=projects_data))
-                    response.set_cookie(cookie_key, cookie_value, max_age=expire_time)
-                    flash('Файл cookie успішно додано', 'success')
-                    return response
+            return response
 
-            elif action == 'delete_cookie':
-                cookie_key_delete = request.form.get('cookie_key_delete')
-                if cookie_key_delete:
-                    response = make_response(render_template('info.html', common=common, user_info=user_info, projects=projects_data))
-                    response.delete_cookie(cookie_key_delete)
-                    flash('Файл cookie успішно видалено', 'success')
-                    return response
-                else:
-                    flash('Відсутній ключ cookie', 'error')
-
-    if user_info:
-        return render_template('info.html', common=common, user_info=user_info, projects=projects_data)
+        return render_template('info.html', email=email, cookies=cookies, form=form, common=common)
     else:
-        flash('Ви повинні увійти, щоб отримати доступ до цієї сторінки', 'error')
+        flash("You are not logged in. Please log in to access this page.", "error")
         return redirect(url_for('login'))
+
+@app.route('/add_cookie', methods=['POST'])
+def add_cookie():
+    if 'username' in user_session:
+        if request.method == 'POST':
+            cookie_key = request.form.get('cookie_key')
+            cookie_value = request.form.get('cookie_value')
+            cookie_expiration = int(request.form.get('cookie_expiration'))
+
+            response = make_response(redirect(url_for('info')))
+            response.set_cookie(cookie_key, cookie_value, max_age=cookie_expiration)
+            session[f'cookie_creation_{cookie_key}'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            flash(f"Cookie '{cookie_key}' added successfully.", 'success')
+
+            return response
+        else:
+            return redirect(url_for('info'))
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/delete_cookie', methods=['POST'])
+def delete_cookie():
+    if 'username' in user_session:
+        if request.method == 'POST':
+            if 'delete_cookie_key' in request.form:
+                delete_cookie_key = request.form['delete_cookie_key']
+
+                if delete_cookie_key in request.cookies:
+                    response = make_response(redirect(url_for('info')))
+                    response.delete_cookie(delete_cookie_key)
+                    session.pop(f'cookie_creation_{delete_cookie_key}', None)
+                    flash(f"Cookie '{delete_cookie_key}' deleted successfully.", 'success')
+
+                    return response
+
+        return redirect(url_for('info'))
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/delete_all_cookies', methods=['POST'])
+def delete_all_cookies():
+    if 'username' in user_session:
+        if request.method == 'POST':
+            response = make_response(redirect(url_for('info')))
+            for key in request.cookies:
+                response.delete_cookie(key)
+                session.pop(f'cookie_creation_{key}', None)
+            flash("All cookies deleted successfully.", 'success')
+
+            return response
+        return redirect(url_for('info'))
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    if 'username' in user_session:
+        del user_session['username']
+
+    return redirect(url_for('login'))
+
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=session.get("email")).first()
+
+        if user and user.verify_password(form.old_password.data):
+            try:
+                user.password = form.new_password.data
+                db.session.commit()
+                flash("Password changed", category="success")
+            except:
+                db.session.rollback()
+                flash("Error", category="danger")
+        else:
+            flash("Error", category="danger")
+    else:
+        flash("Error", category="danger")
+
+    return redirect(url_for('info'))
+
+@app.route('/todo', methods=['GET', 'POST'])
+def todo():
+    form = TodoForm()
+
+    if form.validate_on_submit():
+        task = form.task.data
+        new_todo = Todo(task=task)
+        db.session.add(new_todo)
+        db.session.commit()
+        flash('Task added successfully!', 'success')
+        return redirect(url_for('todo'))
+
+    todos = Todo.query.all()
+    return render_template('todo.html', form=form, todos=todos, common=common)
+
+@app.route('/todo/update/<int:id>')
+def update_todo(id):
+    todo = Todo.query.get_or_404(id)
+    todo.status = not todo.status  # Toggle status
+    db.session.commit()
+    flash('Task updated successfully!', 'success')
+    return redirect(url_for('todo'))
+
+@app.route('/todo/delete/<int:id>')
+def delete_todo(id):
+    todo = Todo.query.get_or_404(id)
+    db.session.delete(todo)
+    db.session.commit()
+    flash('Task deleted successfully!', 'success')
+    return redirect(url_for('todo'))
+
+@app.route('/users')
+def users():
+    return render_template('users.html', users=User.query.all())
 
 if __name__ == '__main__':
     app.run(debug=True)

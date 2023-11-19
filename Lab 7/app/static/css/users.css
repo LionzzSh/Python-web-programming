@@ -1,4 +1,4 @@
-/* Info.css */
+/* users.css */
 
 /* General Styles */
 body {
@@ -22,24 +22,36 @@ h1 {
     color: #333;
 }
 
-/* Form Styles */
-.form-group {
+.card {
     margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.form-group label {
-    display: block;
-    font-weight: bold;
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    font-size: 24px;
+}
+
+.card-subtitle {
+    color: #666;
+}
+
+.card-text {
+    margin-top: 10px;
     color: #555;
 }
 
-.form-control {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    background-color: #f7f7f7;
-    box-sizing: border-box;
+/* Animation Styles */
+@keyframes moveContent {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
 }
 
 .btn {

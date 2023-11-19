@@ -1,8 +1,5 @@
 <a href="{{ url_for('index') }}" class="btn btn-primary">Home Page</a>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
-  <br>
-{% block title %}Todo List{% endblock %}
-{% block content %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/Info.css') }}">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,50 +7,188 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Flask Simple To Do - SQLAlchemy</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #eee;
+        }
+
+        .vh-100 {
+            min-height: 100vh;
+        }
+
+        .container {
+            padding-top: 5rem;
+        }
+
+        .card {
+            border-radius: 1.25rem;
+        }
+
+        .form-outline {
+            width: 100%;
+        }
+
+        .table>:not(caption)>*>* {
+    padding: 0.5rem 0.5rem;
+    background-color: #efefef;
+    border-bottom-width: 1px;
+    box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg);
+}
+
+        .btn-primary {
+            background-color: #000000;
+            border-color: #000000;
+        }
+
+        .bg-primary {
+    background-color: #0d8afd!important;
+}
+
+.bg-success {
+    background-color: #06ad1f!important;
+}
+
+        .btn-primary:hover {
+            background-color: #ff0000;
+            border-color: #ff0000;
+        }
+
+        .btn-success {
+            background-color: #00e97c;
+            border-color: #198754;
+        }
+
+        .btn-info {
+    color: #000;
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+
+        .btn-success:hover {
+            background-color: #157347;
+            border-color: #146c40;
+        }
+
+        .btn-danger {
+            background-color: #000000;
+            border-color: #000000;
+        }
+
+        .btn-danger:hover {
+            background-color: #f8f8f8;
+            border-color: rgb(255, 255, 255);
+        }
+
+        .table-danger {
+            border-color: #000000;
+        }
+
+        .thead-dark {
+            background-color: #212529;
+            color: #0a0a0a;
+        }
+
+        .table tbody tr:hover {
+            background-color: #181818;
+        }
+
+        .alert-secondary {
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+        .alert-success {
+            background-color: #03dd77;
+            color: #fff;
+        }
+        .btn-info {
+    color: #000;
+    background-color:#35fd0d;
+    border-color:#35fd0d;
+          }
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mt-5 {
+            margin-top: 3rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-center.mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 0.75rem;
+        }
+
+        .shadow {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .input-group-text {
+            background-color: #fff;
+            border-color: #ced4da;
+        }
+
+        /* Change the background color of the Todo table */
+        .table-responsive-md {
+            background-color: #fff; /* Change this to the desired color */
+        }
+    </style>
 </head>
 <body>
-  <section class="vh-100" style="background-color: #fff;">
-  <div class="container py-5 h-100">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-      <div class="col col-lg-9 col-xl-7">
-        <div class="card rounded-3">
-          <div class="card-body p-4">
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Todo List</h1>
-        <form method="POST" action="{{ url_for('todo') }}" class="mb-4 justify-content-center">
-            {{ form.hidden_tag() }}
-            <div class="input-group">
-                {{ form.task.label(class="input-group-text") }}
-                {{ form.task(class="form-control") }}
+<section class="vh-100">
+    <div class="container">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col col-lg-9 col-xl-7">
+                <div class="card">
+                    <div class="card-body p-4">
+                        <h1 class="text-center mb-4">Todo List</h1>
+                        <form method="POST" action="{{ url_for('todo') }}" class="mb-4">
+                            {{ form.hidden_tag() }}
+                            <div class="input-group">
+                                {{ form.task.label(class="input-group-text") }}
+                                {{ form.task(class="form-control") }}
+                            </div>
+                            <div class="mt-2">
+                                {{ form.submit(class="btn btn-primary") }}
+                            </div>
+                        </form>
+                        <table class="table table-danger table-responsive-md mx-auto">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col" class="text-center">Task</th>
+                                    <th scope="col" class="text-center">Status</th>
+                                    <th scope="col" class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for todo in todos %}
+                                    <tr class="text-center">
+                                        <th scope="row">{{ todo.id }}</th>
+                                        <td class="shadow">{{ todo.task }}</td>
+                                        <td class="{{ 'bg-success' if todo.status else 'bg-primary' }}">
+                                            {{ 'Completed' if todo.status else 'In Progress' }}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('update_todo', id=todo.id) }}" class="btn btn-info btn-sm">Update</a>
+                                            <a href="{{ url_for('delete_todo', id=todo.id) }}" class="btn btn-primary btn-sm">Delete</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="mt-2">
-                {{ form.submit(class="btn btn-primary") }}
-            </div>
-        </form>
-        <table class="table table-danger table-responsive-md mx-auto">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col" class="text-center">Завдання</th>
-                    <th scope="col" class="text-center">Статус</th>
-                    <th scope="col" class="text-center">Дії</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for todo in todos %}
-                    <tr class="text-center">
-                        <th scope="row">{{ todo.id }}</th>
-                        <td class="shadow">{{ todo.task }}</td>
-                        <td class="{{ 'bg-success' if todo.status else 'bg-primary' }}">
-                            {{ 'Завершено' if todo.status else 'В-процесі' }}
-                        </td>
-                        <td>
-                            <a href="{{ url_for('update_todo', id=todo.id) }}" class="btn btn-info btn-sm">Оновити</a>
-                            <a href="{{ url_for('delete_todo', id=todo.id) }}" class="btn btn-primary btn-sm">Видалити</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        </div>
     </div>
-{% endblock %}
+</section>
+</body>
+</html>

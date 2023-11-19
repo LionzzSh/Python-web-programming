@@ -2,6 +2,11 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, ValidationError, Regexp
 from app.models import User
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, SubmitField, BooleanField, PasswordField  # Імпортуємо PasswordField
+from wtforms.validators import DataRequired, Length
+
+
 
 class LoginForm(FlaskForm):
     email = StringField(label='Email', validators=[DataRequired("Це поле обов'язкове"), Email()])
