@@ -1,0 +1,26 @@
+<a href="{{ url_for('index') }}" class="btn btn-primary">Home Page</a>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/users.css') }}">
+  <br> <br> <br>
+{% block title %}Users{% endblock %}
+{% block content %}
+    <div class="container text-center">
+        <h1 class="mt-4">Number of users: {{ users|length + 1 }}</h1>
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                {% for user in users %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ user.username }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ user.email }}</h6>
+                            <p class="card-text">ID: {{ user.id }}</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning" role="alert">
+                        No users found.
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
