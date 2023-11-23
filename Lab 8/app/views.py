@@ -8,12 +8,13 @@ from flask import render_template, request, session, redirect, url_for, flash, m
 from app import app, db
 from app.forms import FeedbackForm, TodoForm, LoginForm, ChangePasswordForm, RegistrationForm
 from app.models import Feedback, Todo, User
-from flask import render_template, request, session, redirect, url_for, flash, make_response
+from flask_login import login_user, current_user, logout_user, login_required
+from app import app
 
 app.secret_key = b'secret'
 
 # Path to the JSON file containing user data
-users_json_path = 'Lab 7/app/static/files/users.json'
+users_json_path = 'app/static/files/users.json'
 
 # Load user data from the JSON file
 with open(users_json_path, 'r') as users_file:
@@ -147,30 +148,29 @@ def utility_processor():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    error_message = None
+    if current_user.is_authenticated:
+        return redirect(url_for('info'))
+
     form = LoginForm()
 
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
 
         if user and user.verify_password(form.password.data):
-            if form.remember.data:
-                session["email"] = form.email.data  # Ensure the 'email' key is being set
-                flash("Login successful", category="success")
-                return redirect(url_for("info"))
-
+            login_user(user, remember=form.remember.data)
             flash("Login successful", category="success")
             return redirect(url_for("info"))
 
-        flash("ERROR!!!", category="danger")
+        flash("Invalid email or password", category="danger")
         return redirect(url_for("login"))
 
-    return render_template('login.html', error_message=error_message, form=form, common=common)
-
-
+    return render_template('login.html', form=form, common=common)
 
 @app.route("/registration", methods=['GET', 'POST'])
 def registration():
+    if current_user.is_authenticated:
+        return redirect(url_for('info'))
+    
     form = RegistrationForm()
     if form.validate_on_submit():
         new_user = User(username=form.username.data, email=form.email.data, password=form.password.data)
@@ -178,30 +178,22 @@ def registration():
             db.session.add(new_user)
             db.session.commit()
             flash(f"Account created for {form.username.data}!", "success")
+            return redirect(url_for("login"))
         except:
             db.session.rollback()
             flash("ERROR, try use another data", category="danger")
             return redirect(url_for("registration"))
 
-        return redirect(url_for('login'))
     return render_template("register.html", form=form, common=common)
 
 @app.route('/info', methods=['GET', 'POST'])
+@login_required
 def info():
-    form = ChangePasswordForm()
-    if 'email' in session:
-        email = session['email']
+    form = ChangePasswordForm() 
 
+    if current_user.is_authenticated:
+        email = current_user.email
         cookies = []
-        for key, value in request.cookies.items():
-            expiration = request.cookies[key]
-            creation_time = session.get(f'cookie_creation_{key}')
-            cookies.append({
-                'key': key,
-                'value': value,
-                'expiration': expiration,
-                'creation_time': creation_time,
-            })
 
         if request.method == 'POST':
             if 'cookie_key' in request.form and 'cookie_value' in request.form and 'cookie_expiration' in request.form:
@@ -233,11 +225,12 @@ def info():
 
             return response
 
-        return render_template('info.html', email=email, cookies=cookies, form=form, common=common)
+        return render_template('info.html', email=email, cookies=cookies, common=common, form=form)
+
     else:
         flash("You are not logged in. Please log in to access this page.", "error")
         return redirect(url_for('login'))
-
+    
 @app.route('/add_cookie', methods=['POST'])
 def add_cookie():
     if 'username' in user_session:
@@ -293,18 +286,19 @@ def delete_all_cookies():
         return redirect(url_for('login'))
 
 
-@app.route('/logout', methods=['POST'])
+@app.route('/logout', methods=['GET', 'POST'])
 def logout():
-    if 'username' in user_session:
-        del user_session['username']
-
-    return redirect(url_for('login'))
+    if request.method == 'POST' or request.method == 'GET':
+        logout_user()
+        flash("You've been logged out", category="success")
+        return redirect(url_for("login"))
+    return redirect(url_for("login"))
 
 @app.route('/change_password', methods=['POST'])
 def change_password():
     form = ChangePasswordForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=session.get("email")).first()
+        user = current_user
 
         if user and user.verify_password(form.old_password.data):
             try:
@@ -355,6 +349,12 @@ def delete_todo(id):
 @app.route('/users')
 def users():
     return render_template('users.html', users=User.query.all())
+
+@app.route('/account')
+@login_required
+def account():
+    form = ChangePasswordForm()
+    return render_template('account.html',form=form, user=current_user, is_authenticated=True, title='Account')
 
 if __name__ == '__main__':
     app.run(debug=True)
