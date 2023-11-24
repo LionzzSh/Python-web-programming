@@ -52,7 +52,8 @@ class FeedbackForm(FlaskForm):
 class TodoForm(FlaskForm):
     task = StringField('Завдання', validators=[DataRequired()])
     submit = SubmitField('Додати')
-        
+
+    
 class UpdateAccountForm(FlaskForm):
     username = StringField("Username", validators=[Length(min=4, max=10),
                                                    Regexp('^[A-Za-z][a-zA-Z0-9._]+$', 0,
