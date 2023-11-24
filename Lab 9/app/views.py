@@ -6,15 +6,16 @@ from datetime import datetime
 import datetime
 from flask import render_template, request, session, redirect, url_for, flash, make_response
 from app import app, db
-from app.forms import FeedbackForm, TodoForm, LoginForm, ChangePasswordForm, RegistrationForm
+from app.forms import LoginForm, ChangePasswordForm, FeedbackForm, TodoForm, RegistrationForm, UpdateAccountForm
 from app.models import Feedback, Todo, User
 from flask_login import login_user, current_user, logout_user, login_required
-from app import app
+from werkzeug.utils import secure_filename
+import shutil
 
 app.secret_key = b'secret'
 
 # Path to the JSON file containing user data
-users_json_path = 'Lab 8/app/static/files/users.json'
+users_json_path = 'app/static/files/users.json'
 
 # Load user data from the JSON file
 with open(users_json_path, 'r') as users_file:
@@ -295,25 +296,29 @@ def logout():
     return redirect(url_for("login"))
 
 @app.route('/change_password', methods=['POST'])
+@login_required
 def change_password():
     form = ChangePasswordForm()
+
     if form.validate_on_submit():
         user = current_user
-
+                          #checkPassword
         if user and user.verify_password(form.old_password.data):
             try:
-                user.password = form.new_password.data
+                # Update the password
+                user.set_password(form.new_password.data)
                 db.session.commit()
                 flash("Password changed", category="success")
-            except:
+            except Exception as e:
                 db.session.rollback()
-                flash("Error", category="danger")
+                flash(f"Error: {e}", category="danger")
         else:
-            flash("Error", category="danger")
+            flash("Invalid password", category="danger")
     else:
-        flash("Error", category="danger")
+        flash("Form validation failed", category="danger")
 
-    return redirect(url_for('info'))
+    return redirect(url_for('account'))
+
 
 @app.route('/todo', methods=['GET', 'POST'])
 def todo():
@@ -350,11 +355,61 @@ def delete_todo(id):
 def users():
     return render_template('users.html', users=User.query.all())
 
-@app.route('/account')
+UPLOAD_FOLDER = 'static/imgs/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+# end #
+
+
+@app.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
-    form = ChangePasswordForm()
-    return render_template('account.html',form=form, user=current_user, is_authenticated=True, title='Account')
+    update_account_form = UpdateAccountForm(obj=current_user)
+    change_password_form = ChangePasswordForm()
+
+    if update_account_form.validate_on_submit():
+        current_user.username = update_account_form.username.data
+        current_user.email = update_account_form.email.data
+        current_user.about_me = update_account_form.about_me.data
+
+        if 'image' in request.files:
+            file = request.files['image']
+            if file.filename != '':
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+                current_user.image_file = filename
+
+                # Move the file to the UPLOAD_FOLDER
+                destination = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename)
+                shutil.move(file_path, destination)
+
+        db.session.commit()
+        flash('Account updated successfully!', 'success')
+        return redirect(url_for('account'))
+
+    if change_password_form.validate_on_submit():
+        if current_user.check_password(change_password_form.old_password.data):
+            try:
+                current_user.set_password(change_password_form.new_password.data)
+                db.session.commit()
+                flash('Password changed successfully!', 'success')
+                return redirect(url_for('account'))
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Error changing password: {e}", 'danger')
+        else:
+            flash('Current password is incorrect', 'danger')
+
+
+    return render_template('account.html', update_account_form=update_account_form, change_password_form=change_password_form, is_authenticated=True, common=common)
+
+@app.before_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.update_last_seen()
 
 if __name__ == '__main__':
     app.run(debug=True)
