@@ -159,10 +159,10 @@ def login():
 
         if user and user.verify_password(form.password.data):
             login_user(user, remember=form.remember.data)
-            flash("Login successful", category="success")
+            flash("Вхід успішний", category="success")
             return redirect(url_for("info"))
 
-        flash("Invalid email or password", category="danger")
+        flash("Невірна адреса електронної пошти або пароль", category="danger")
         return redirect(url_for("login"))
 
     return render_template('login.html', form=form, common=common)
@@ -178,11 +178,11 @@ def registration():
         try:
             db.session.add(new_user)
             db.session.commit()
-            flash(f"Account created for {form.username.data}!", "success")
+            flash(f"Обліковий запис створено для {form.username.data}!", "success")
             return redirect(url_for("login"))
         except:
             db.session.rollback()
-            flash("ERROR, try use another data", category="danger")
+            flash("ПОМИЛКА, спробуйте використати інші дані", category="danger")
             return redirect(url_for("registration"))
 
     return render_template("register.html", form=form, common=common)
@@ -206,7 +206,7 @@ def info():
                 response.set_cookie(cookie_key, cookie_value, max_age=cookie_expiration)
                 session[f'cookie_creation_{cookie_key}'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-                flash(f"Cookie '{cookie_key}' added successfully.", 'success')
+                flash(f"Cookie '{cookie_key}' успішно додано.", 'success')
 
             if 'delete_cookie_key' in request.form:
                 delete_cookie_key = request.form['delete_cookie_key']
@@ -215,21 +215,21 @@ def info():
                     response = make_response(redirect(url_for('info')))
                     response.delete_cookie(delete_cookie_key)
                     session.pop(f'cookie_creation_{delete_cookie_key}', None)
-                    flash(f"Cookie '{delete_cookie_key}' deleted successfully.", 'success')
+                    flash(f"Cookie '{delete_cookie_key}' успішно видалено.", 'success')
 
             if 'delete_all_cookies' in request.form:
                 response = make_response(redirect(url_for('info')))
                 for key in request.cookies:
                     response.delete_cookie(key)
                     session.pop(f'cookie_creation_{key}', None)
-                flash("All cookies deleted successfully.", 'success')
+                flash("Усі файли cookie успішно видалено.", 'success')
 
             return response
 
         return render_template('info.html', email=email, cookies=cookies, common=common, form=form)
 
     else:
-        flash("You are not logged in. Please log in to access this page.", "error")
+        flash("Ви не ввійшли в систему. Увійдіть, щоб отримати доступ до цієї сторінки.", "error")
         return redirect(url_for('login'))
     
 @app.route('/add_cookie', methods=['POST'])
@@ -244,7 +244,7 @@ def add_cookie():
             response.set_cookie(cookie_key, cookie_value, max_age=cookie_expiration)
             session[f'cookie_creation_{cookie_key}'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            flash(f"Cookie '{cookie_key}' added successfully.", 'success')
+            flash(f"Cookie '{cookie_key}' успішно додано.", 'success')
 
             return response
         else:
@@ -263,7 +263,7 @@ def delete_cookie():
                     response = make_response(redirect(url_for('info')))
                     response.delete_cookie(delete_cookie_key)
                     session.pop(f'cookie_creation_{delete_cookie_key}', None)
-                    flash(f"Cookie '{delete_cookie_key}' deleted successfully.", 'success')
+                    flash(f"Cookie '{delete_cookie_key}'успішно видалено.", 'success')
 
                     return response
 
@@ -279,7 +279,7 @@ def delete_all_cookies():
             for key in request.cookies:
                 response.delete_cookie(key)
                 session.pop(f'cookie_creation_{key}', None)
-            flash("All cookies deleted successfully.", 'success')
+            flash("Усі файли cookie успішно видалено.", 'success')
 
             return response
         return redirect(url_for('info'))
@@ -291,7 +291,7 @@ def delete_all_cookies():
 def logout():
     if request.method == 'POST' or request.method == 'GET':
         logout_user()
-        flash("You've been logged out", category="success")
+        flash("Ви вийшли з системи", category="success")
         return redirect(url_for("login"))
     return redirect(url_for("login"))
 
@@ -308,14 +308,14 @@ def change_password():
                 # Update the password
                 user.set_password(form.new_password.data)
                 db.session.commit()
-                flash("Password changed", category="success")
+                flash("Пароль змінено", category="success")
             except Exception as e:
                 db.session.rollback()
                 flash(f"Error: {e}", category="danger")
         else:
-            flash("Invalid password", category="danger")
+            flash("Недійсний пароль", category="danger")
     else:
-        flash("Form validation failed", category="danger")
+        flash("Помилка перевірки форми", category="danger")
 
     return redirect(url_for('account'))
 
@@ -329,7 +329,7 @@ def todo():
         new_todo = Todo(task=task)
         db.session.add(new_todo)
         db.session.commit()
-        flash('Task added successfully!', 'success')
+        flash('Завдання успішно додано!', 'success')
         return redirect(url_for('todo'))
 
     todos = Todo.query.all()
@@ -340,7 +340,7 @@ def update_todo(id):
     todo = Todo.query.get_or_404(id)
     todo.status = not todo.status  # Toggle status
     db.session.commit()
-    flash('Task updated successfully!', 'success')
+    flash('Завдання успішно оновлено!', 'success')
     return redirect(url_for('todo'))
 
 @app.route('/todo/delete/<int:id>')
@@ -348,7 +348,7 @@ def delete_todo(id):
     todo = Todo.query.get_or_404(id)
     db.session.delete(todo)
     db.session.commit()
-    flash('Task deleted successfully!', 'success')
+    flash('Завдання успішно видалено!', 'success')
     return redirect(url_for('todo'))
 
 @app.route('/users')
@@ -387,7 +387,7 @@ def account():
                 shutil.move(file_path, destination)
 
         db.session.commit()
-        flash('Account updated successfully!', 'success')
+        flash('Обліковий запис успішно оновлено!', 'success')
         return redirect(url_for('account'))
 
     if change_password_form.validate_on_submit():
@@ -395,13 +395,13 @@ def account():
             try:
                 current_user.set_password(change_password_form.new_password.data)
                 db.session.commit()
-                flash('Password changed successfully!', 'success')
+                flash('Пароль успішно змінено!', 'success')
                 return redirect(url_for('account'))
             except Exception as e:
                 db.session.rollback()
-                flash(f"Error changing password: {e}", 'danger')
+                flash(f"Помилка зміни пароля: {e}", 'danger')
         else:
-            flash('Current password is incorrect', 'danger')
+            flash('Введений пароль невірний', 'danger')
 
 
     return render_template('account.html', update_account_form=update_account_form, change_password_form=change_password_form, is_authenticated=True, common=common)

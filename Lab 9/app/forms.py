@@ -25,16 +25,16 @@ class RegistrationForm(FlaskForm):
     password = PasswordField(label='Password', validators=[DataRequired("Це поле обов'язкове"),
             Length(min=7, message="Mінімум 7 символів")
         ])
-    confirm_password = PasswordField(label='Repeat Password', validators=[DataRequired("Це поле обов'язкове")])
+    confirm_password = PasswordField(label='Confirm password', validators=[DataRequired("Це поле обов'язкове")])
     submit = SubmitField(label="Зареєструватись")
 
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
-            raise ValidationError('Email already registered')
+            raise ValidationError('Електронна пошта вже зареєстрована')
 
     def validate_username(self, field):
         if User.query.filter_by(username=field.data).first():
-            raise ValidationError("Username already in use")
+            raise ValidationError("Ім'я користувача вже використовується")
 
 
 class ChangePasswordForm(FlaskForm):
@@ -63,7 +63,7 @@ class UpdateAccountForm(FlaskForm):
 
     email = StringField(label='Email', validators=[Email()])
 
-    image = FileField('Profile Image', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')])
+    image = FileField('Profile image', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Тільки зображення!')])
 
     about_me = TextAreaField(label='About Me')
 
@@ -74,10 +74,10 @@ class UpdateAccountForm(FlaskForm):
         if username.data != current_user.username:
             user = User.query.filter_by(username=username.data).first()
             if user:
-                raise ValidationError('That username is taken. Please choose a different one.')
+                raise ValidationError('Це ім’я користувача зайнято. Виберіть інший.')
 
     def validate_email(self, email):
         if email.data != current_user.email:
             user = User.query.filter_by(email=email.data).first()
             if user:
-                raise ValidationError('That email is taken. Please choose a different one.')
+                raise ValidationError('Цей електронний лист прийнято. Виберіть інший.')
