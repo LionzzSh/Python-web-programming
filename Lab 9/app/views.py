@@ -11,6 +11,7 @@ from app.models import Feedback, Todo, User
 from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 import shutil
+from PIL import Image
 
 app.secret_key = b'secret'
 
@@ -355,13 +356,11 @@ def delete_todo(id):
 def users():
     return render_template('users.html', users=User.query.all())
 
-UPLOAD_FOLDER = 'static/imgs/'
+UPLOAD_FOLDER = 'Lab 9/app/static/imgs'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
-# end #
-
 
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
@@ -369,42 +368,49 @@ def account():
     update_account_form = UpdateAccountForm(obj=current_user)
     change_password_form = ChangePasswordForm()
 
-    if update_account_form.validate_on_submit():
-        current_user.username = update_account_form.username.data
-        current_user.email = update_account_form.email.data
-        current_user.about_me = update_account_form.about_me.data
+    try:
+        if update_account_form.validate_on_submit():
+            current_user.username = update_account_form.username.data
+            current_user.email = update_account_form.email.data
+            current_user.about_me = update_account_form.about_me.data
 
-        if 'image' in request.files:
-            file = request.files['image']
-            if file.filename != '':
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
-                current_user.image_file = filename
+            if 'image' in request.files:
+                file = request.files['image']
+                if file.filename != '':
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(file_path)
 
-                # Move the file to the UPLOAD_FOLDER
-                destination = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename)
-                shutil.move(file_path, destination)
+                    icon_size = (200, 200)
+                    icon_filename = 'icon_' + filename
+                    icon_path = os.path.join(app.config['UPLOAD_FOLDER'], icon_filename)
 
-        db.session.commit()
-        flash('Обліковий запис успішно оновлено!', 'success')
-        return redirect(url_for('account'))
+                    img = Image.open(file_path)
+                    img.thumbnail(icon_size)
+                    img.save(icon_path)
 
-    if change_password_form.validate_on_submit():
-        if current_user.check_password(change_password_form.old_password.data):
-            try:
-                current_user.set_password(change_password_form.new_password.data)
-                db.session.commit()
-                flash('Пароль успішно змінено!', 'success')
-                return redirect(url_for('account'))
-            except Exception as e:
-                db.session.rollback()
-                flash(f"Помилка зміни пароля: {e}", 'danger')
-        else:
-            flash('Введений пароль невірний', 'danger')
+                    current_user.image_file = icon_filename
 
+            db.session.commit()
+            flash('Account successfully updated!', 'success')
+            return redirect(url_for('account'))
 
-    return render_template('account.html', update_account_form=update_account_form, change_password_form=change_password_form, is_authenticated=True, common=common)
+        if change_password_form.validate_on_submit():
+            if current_user.check_password(change_password_form.old_password.data):
+                try:
+                    current_user.set_password(change_password_form.new_password.data)
+                    db.session.commit()
+                    flash('Password successfully changed!', 'success')
+                    return redirect(url_for('account'))
+                except Exception as e:
+                    db.session.rollback()
+                    flash(f"Error changing password: {e}", 'danger')
+            else:
+                flash('Incorrect current password', 'danger')
+    except Exception as e:
+        flash(f"An error occurred: {e}", 'danger')
+
+    return render_template('account.html', update_account_form=update_account_form, change_password_form=change_password_form, is_authenticated=True)
 
 @app.before_request
 def before_request():
