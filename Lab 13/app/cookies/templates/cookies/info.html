@@ -1,0 +1,88 @@
+<a href="{{ url_for('resume.index') }}" class="btn btn-primary">Home Page</a>
+<div class="row">
+  <h1>Info</h1>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+{% from "render_field.html" import render_field %}
+{% block title %}INFO{% endblock %}
+{% block content %}
+    <div class="container text-center">
+      <div class="row g-0">
+        <div class="col">
+          <div class="p-3">
+            <h1>INFO page</h1>
+            {% if email %}
+                <p>Welcome, {{ email }}!</p>
+                <form method="POST" action="{{ url_for('profile.logout') }}">
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+                <form method="POST" action="{{ url_for('cookies.add_cookie') }}">
+                    <h2>Add a Cookie</h2>
+                    <div class="form-group">
+                        <label for="cookie_key">Key:</label>
+                        <input type="text" name="cookie_key" class="form-control" id="cookie_key" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cookie_value">Value:</label>
+                        <input type="text" name="cookie_value" class="form-control" id="cookie_value" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cookie_expiration">Expiration (in seconds):</label>
+                        <input type="number" name="cookie_expiration" class="form-control" id="cookie_expiration" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Add Cookie</button>
+                </form>
+
+                <form method="POST" action="{{ url_for('cookies.delete_cookie') }}">
+                    <h2>Delete a Cookie</h2>
+                    <div class="form-group">
+                        <label for="delete_cookie_key">Key:</label>
+                        <input type="text" name="delete_cookie_key" class="form-control" id="delete_cookie_key" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Delete Cookie</button>
+                </form>
+
+                <form method="POST" action="{{ url_for('cookies.delete_all_cookies') }}">
+                    <button type="submit" class="btn btn-danger">Delete All Cookies</button>
+                </form>
+
+                <h2>Saved Cookies</h2>
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Key</th>
+                      <th>Value</th>
+                      <th>Expiration</th>
+                      <th>Creation Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for cookie in cookies %}
+                    <tr>
+                      <td>{{ cookie.key }}</td>
+                      <td>{{ cookie.value[:50] }}</td>
+                      <td>{{ cookie.expiration[:50] }}</td>
+                      <td>{{ cookie.creation_time }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+            {% else %}
+                <p>Please log in to access this page.</p>
+            {% endif %}
+          <br><br><hr>
+                <h2>Change Password</h2>
+                <form method="POST" action="{{ url_for('cookies.change_password') }}">
+                    {{ form.csrf_token }}
+                  <div class="form-group">
+                    {{ render_field(form.old_password, class="form-control") }}
+                  </div>
+                  <div class="form-group">
+                    {{ render_field(form.new_password, class="form-control") }}
+                  </div>
+                  {{ render_field(form.submit, class="btn btn-success") }}
+                </form>
+           </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
