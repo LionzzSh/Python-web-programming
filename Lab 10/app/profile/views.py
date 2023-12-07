@@ -7,13 +7,25 @@ from .models import User
 from app import db
 import os
 from datetime import datetime
+from flask import Blueprint, render_template
+
+resume_bp = Blueprint('resume', __name__, template_folder='templates')
+
+@resume_bp.route('/base')
+def base():
+    return render_template('resume/base.html')
+
+@resume_bp.route('/index')
+def index():
+    # Your index route logic here
+    return render_template('resume/index.html')
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 @profile_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('info'))
+        return redirect(url_for('cookies.info'))
 
     form = LoginForm()
 
@@ -33,7 +45,7 @@ def login():
 @profile_bp.route('/registration', methods=['GET', 'POST'])
 def registration():
     if current_user.is_authenticated:
-        return redirect(url_for('info'))
+        return redirect(url_for('cookies.info'))
     
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -42,11 +54,11 @@ def registration():
             db.session.add(new_user)
             db.session.commit()
             flash(f"Обліковий запис створено для {form.username.data}!", "success")
-            return redirect(url_for("login"))
+            return redirect(url_for("profile.login"))
         except:
             db.session.rollback()
             flash("ПОМИЛКА, спробуйте використати інші дані", category="danger")
-            return redirect(url_for("profileregistration"))
+            return redirect(url_for("profile.registration"))
 
     return render_template("profile/register.html", form=form)
 
@@ -56,7 +68,6 @@ def logout():
         logout_user()
         flash("You've been logged out", category="success")
         return redirect(url_for("profile.login"))
-    return redirect(url_for("profile.login"))
 
 @profile_bp.route('/change_password', methods=['POST'])
 @login_required

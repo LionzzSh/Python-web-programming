@@ -5,20 +5,25 @@ from ..extensions import db
 from . import cookies_bp
 from .forms import ChangePasswordForm
 
-common = {
-    'first_name': 'Vitalii',
-    'last_name': 'Shmatolokha',
-}
-
 user_session = {}
 @cookies_bp.route('/info', methods=['GET', 'POST'])
 @login_required
 def info():
-    form = ChangePasswordForm() 
+    form = ChangePasswordForm()
 
     if current_user.is_authenticated:
         email = current_user.email
+
         cookies = []
+        for key, value in request.cookies.items():
+            expiration = request.cookies[key]
+            creation_time = session.get(f'cookie_creation_{key}')
+            cookies.append({
+                'key': key,
+                'value': value,
+                'expiration': expiration,
+                'creation_time': creation_time,
+            })
 
         if request.method == 'POST':
             if 'cookie_key' in request.form and 'cookie_value' in request.form and 'cookie_expiration' in request.form:
@@ -26,34 +31,34 @@ def info():
                 cookie_value = request.form['cookie_value']
                 cookie_expiration = int(request.form['cookie_expiration'])
 
-                response = make_response(redirect(url_for('info')))
+                response = make_response(redirect(url_for('cookies.info')))
                 response.set_cookie(cookie_key, cookie_value, max_age=cookie_expiration)
                 session[f'cookie_creation_{cookie_key}'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-                flash(f"Cookie '{cookie_key}' успішно додано.", 'success')
+                flash(f"Cookie '{cookie_key}' added successfully.", 'success')
 
             if 'delete_cookie_key' in request.form:
                 delete_cookie_key = request.form['delete_cookie_key']
 
                 if delete_cookie_key in request.cookies:
-                    response = make_response(redirect(url_for('info')))
+                    response = make_response(redirect(url_for('cookies.info')))
                     response.delete_cookie(delete_cookie_key)
                     session.pop(f'cookie_creation_{delete_cookie_key}', None)
-                    flash(f"Cookie '{delete_cookie_key}' успішно видалено.", 'success')
+                    flash(f"Cookie '{delete_cookie_key}' deleted successfully.", 'success')
 
             if 'delete_all_cookies' in request.form:
-                response = make_response(redirect(url_for('info')))
+                response = make_response(redirect(url_for('cookies.info')))
                 for key in request.cookies:
                     response.delete_cookie(key)
                     session.pop(f'cookie_creation_{key}', None)
-                flash("Усі файли cookie успішно видалено.", 'success')
+                flash("All cookies deleted successfully.", 'success')
 
             return response
 
-        return render_template('info.html', email=email, cookies=cookies, common=common, form=form)
+        return render_template('cookies/info.html', email=email, cookies=cookies, form=form)
 
     else:
-        flash("Ви не ввійшли в систему. Увійдіть, щоб отримати доступ до цієї сторінки.", "error")  
+        flash("You are not logged in. Please log in to access this page.", "error")
         return redirect(url_for('profile.login'))
 
 @cookies_bp.route('/change_password', methods=['POST'])

@@ -1,7 +1,7 @@
-{% include 'messages.html' %} 
-<a href="{{ url_for('index') }}" class="btn btn-primary">Home Page</a>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/user.css') }}">
 
+<a href="{{ url_for('resume.index') }}" class="btn btn-primary">Go to Base</a>
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
 <style>
   body {
     font-family: sans-serif;
@@ -175,7 +175,6 @@
   }
 </style>
 
-<br> <br> <br>
 {% from "render_field.html" import render_field %}
 {% block title %}Update Account{% endblock %}
 {% block content %}
@@ -183,7 +182,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-6">
                 <div class="p-3">
-                  <img src="{{ url_for('static', filename='imgs/' + current_user.image_file) }}" alt="Profile Photo" class="mb-3 rounded-circle" style="width: 50%; height: 50%; object-fit: cover;">
+                    <img src="{{ url_for('static', filename='imgs/' + current_user.image_file) }}" alt="Profile Photo" class="mb-3 rounded-circle" style="width: 50%; height: 50%; object-fit: cover;">
                     <h1>{{ current_user.username }}</h1>
                     <p>Email: {{ current_user.email }}</p>
                 </div>
@@ -213,7 +212,7 @@
                     </form>
                     <br><br><hr>
                     <h2>Change Password</h2>
-                    <form method="POST" action="{{ url_for('change_password') }}">
+                    <form method="POST" action="{{ url_for('profile.change_password') }}">
                         {{ change_password_form.csrf_token }}
                         <div class="form-group">
                             {{ render_field(change_password_form.old_password, 'Current Password', class="form-control") }}

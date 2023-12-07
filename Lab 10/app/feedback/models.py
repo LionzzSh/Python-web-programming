@@ -10,9 +10,9 @@ class Feedback(db.Model):
         self.name = name
         self.comment = comment
 
-    def __repr__(self):
-        return f"<Feedback {self.id}>"
-
     def update_last_seen(self):
         self.last_seen = datetime.utcnow()
         db.session.commit()
+
+def __repr__(self):
+        return f"<Feedback {self.id}>"

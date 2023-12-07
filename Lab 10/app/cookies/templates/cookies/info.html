@@ -1,7 +1,7 @@
-{% include 'messages.html' %} 
-<a href="{{ url_for('index') }}" class="btn btn-primary">Home Page</a>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/Info.css') }}">
-  <br>  <br>  
+<a href="{{ url_for('resume.index') }}" class="btn btn-primary">Home Page</a>
+<div class="row">
+  <h1>Info</h1>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
 {% from "render_field.html" import render_field %}
 {% block title %}INFO{% endblock %}
 {% block content %}
@@ -9,13 +9,13 @@
       <div class="row g-0">
         <div class="col">
           <div class="p-3">
-            <h1>Info</h1>
+            <h1>INFO page</h1>
             {% if email %}
                 <p>Welcome, {{ email }}!</p>
-                <form method="POST" action="{{ url_for('logout') }}">
+                <form method="POST" action="{{ url_for('profile.logout') }}">
                     <button type="submit" class="btn btn-danger">Logout</button>
                 </form>
-                <form method="POST" action="{{ url_for('add_cookie') }}">
+                <form method="POST" action="{{ url_for('cookies.add_cookie') }}">
                     <h2>Add a Cookie</h2>
                     <div class="form-group">
                         <label for="cookie_key">Key:</label>
@@ -32,7 +32,7 @@
                     <button type="submit" class="btn btn-success">Add Cookie</button>
                 </form>
 
-                <form method="POST" action="{{ url_for('delete_cookie') }}">
+                <form method="POST" action="{{ url_for('cookies.delete_cookie') }}">
                     <h2>Delete a Cookie</h2>
                     <div class="form-group">
                         <label for="delete_cookie_key">Key:</label>
@@ -41,7 +41,7 @@
                     <button type="submit" class="btn btn-danger">Delete Cookie</button>
                 </form>
 
-                <form method="POST" action="{{ url_for('delete_all_cookies') }}">
+                <form method="POST" action="{{ url_for('cookies.delete_all_cookies') }}">
                     <button type="submit" class="btn btn-danger">Delete All Cookies</button>
                 </form>
 
@@ -71,7 +71,7 @@
             {% endif %}
           <br><br><hr>
                 <h2>Change Password</h2>
-                <form method="POST" action="{{ url_for('change_password') }}">
+                <form method="POST" action="{{ url_for('cookies.change_password') }}">
                     {{ form.csrf_token }}
                   <div class="form-group">
                     {{ render_field(form.old_password, class="form-control") }}

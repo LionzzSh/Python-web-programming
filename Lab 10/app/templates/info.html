@@ -1,5 +1,6 @@
 {% include 'messages.html' %} 
-<a href="{{ url_for('index') }}" class="btn btn-primary">Home Page</a>
+<a href="{{ url_for('resume.index') }}" class="btn btn-primary">Home Page</a>
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/Info.css') }}">
   <br>  <br>  
 {% from "render_field.html" import render_field %}

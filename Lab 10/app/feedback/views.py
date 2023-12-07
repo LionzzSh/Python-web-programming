@@ -25,7 +25,7 @@ def feedback():
         except:
             flash('Під час надсилання відгуку сталася помилка', 'error')
 
-        return redirect(url_for('feedback'))
+        return redirect(url_for('feedback.feedback'))
 
     feedback_data = Feedback.query.all()
-    return render_template('feedback.html', form=form, feedback_data=feedback_data, common=common)
+    return render_template('feedback/feedback.html', form=form, feedback_data=feedback_data, common=common)
