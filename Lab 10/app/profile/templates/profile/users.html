@@ -1,9 +1,12 @@
-<a href="{{ url_for('resume.index') }}" class="btn btn-primary">Go to Base</a>
-
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+{% extends 'base.html' %}
   <br> <br> <br>
 {% block title %}Users{% endblock %}
 {% block content %}
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/Info.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+
     <div class="container text-center">
         <h1 class="mt-4">Number of users: {{ users|length }}</h1>
         <div class="row justify-content-center mt-4">

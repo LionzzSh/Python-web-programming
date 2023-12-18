@@ -11,6 +11,11 @@ from flask import Blueprint, render_template
 
 resume_bp = Blueprint('resume', __name__, template_folder='templates')
 
+common = {
+    'first_name': 'Vitalii',
+    'last_name': 'Shmatolokha',
+}
+
 @resume_bp.route('/base')
 def base():
     return render_template('resume/base.html')
@@ -40,7 +45,7 @@ def login():
         flash("Invalid email or password", category="danger")
         return redirect(url_for("profile.login"))
 
-    return render_template('profile/login.html', form=form)
+    return render_template('profile/login.html', form=form, common=common)
 
 @profile_bp.route('/registration', methods=['GET', 'POST'])
 def registration():
@@ -60,7 +65,7 @@ def registration():
             flash("ПОМИЛКА, спробуйте використати інші дані", category="danger")
             return redirect(url_for("profile.registration"))
 
-    return render_template("profile/register.html", form=form)
+    return render_template("profile/register.html", form=form, common=common)
 
 @profile_bp.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -146,7 +151,7 @@ def account():
         else:
             flash('Current password is incorrect', 'danger')
 
-    return render_template('profile/account.html', update_account_form=update_account_form, change_password_form=change_password_form, is_authenticated=True, os=os)
+    return render_template('profile/account.html', update_account_form=update_account_form, change_password_form=change_password_form, is_authenticated=True, os=os, common=common)
 
 @profile_bp.before_request
 def update_last_seen():

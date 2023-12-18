@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block head %}
+{% block content %}
+
 <script type="text/javascript"
         src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link type="text/css" rel="stylesheet"
@@ -13,9 +14,6 @@
 <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/projects.css') }}">
 <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/card.css') }}">
 <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/chip.css') }}">
-{% endblock %}
-
-{% block body %}
 
 {% if tag is not none %}
 <div class="row">
@@ -33,5 +31,21 @@
     {% include "card.html" %}
     {% endfor %}
 </div>
+
+<!-- Add a loader div before your content -->
+<div id="loader"></div>
+
+<section class="vh-100">
+    <!-- Rest of your content -->
+</section>
+
+<script>
+    // Add JavaScript to hide the loader once the page is loaded
+    window.addEventListener('load', function() {
+        var loader = document.getElementById('loader');
+        loader.style.display = 'none';
+    });
+</script>
+
 
 {% endblock %}

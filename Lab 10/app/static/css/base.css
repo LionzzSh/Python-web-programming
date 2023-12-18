@@ -1,6 +1,13 @@
 body {
-  height:100vh;
+  height: 100vh;
   font-family: 'Open Sans', sans-serif;
+  margin: 0; /* Remove default body margin */
+}
+
+.container {
+  max-width: 80%; /* Adjust the maximum width as needed */
+  margin: 0 auto; /* Center the container */
+  padding: 20px; /* Add padding to the container */
 }
 
 .navbar-ref {
@@ -10,18 +17,19 @@ body {
 }
 
 .navbar-ul {
-    background-color: white;
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
+  background-color: white;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
 }
 
 .list-inline {
   display: flex;
   text-decoration: none;
   justify-content: space-around;
-  margin:20px 0;
-  width: 50%;
+  margin: 20px 0;
+  width: 100%; /* Adjust this value as needed */
+  margin: 0 auto; /* Center the list */
 }
 
 @media only screen and (max-width: 1094px) {
@@ -34,7 +42,6 @@ body {
     font-family: 'Open Sans', sans-serif;
     font-size: 14px;
   }
-
 }
 
 a::selection,

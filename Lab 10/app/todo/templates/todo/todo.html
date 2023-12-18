@@ -1,6 +1,6 @@
-<a href="{{ url_for('resume.index') }}" class="btn btn-primary">Home Page</a>
-
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/Info.css') }}">
+{% extends 'base.html' %}
+{% block content %}
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/projects.css') }}">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,3 +62,4 @@
 </section>
 </body>
 </html>
+{% endblock %}

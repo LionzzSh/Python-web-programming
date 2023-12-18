@@ -103,7 +103,7 @@ def add_cookie():
         else:
             return redirect(url_for('info'))
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for('profile.login'))
 
 @cookies_bp.route('/delete_cookie', methods=['POST'])
 def delete_cookie():
@@ -122,7 +122,7 @@ def delete_cookie():
 
         return redirect(url_for('info'))
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for('profile.login'))
 
 @cookies_bp.route('/delete_all_cookies', methods=['POST'])
 def delete_all_cookies():
@@ -137,5 +137,5 @@ def delete_all_cookies():
             return response
         return redirect(url_for('info'))
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for('profile.login'))
 
