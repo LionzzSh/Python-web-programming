@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link type="text/css" rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/projects.css') }}">
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/card.css') }}">
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/chip.css') }}">
+
+{% if tag is not none %}
+<div class="row">
+    <div class="md-chips md-chips-center col s2 offset-s5">
+        <div class="md-chip md-chip-hover">
+            <a class="md-chip-link" href="/projects">{{tag}}</a>
+            <div class="md-chip-remove"><a href="/projects" class="md-chip-remove-span">x</a></div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row cards-container">
+    {% for project in projects %}
+    {% include "card.html" %}
+    {% endfor %}
+</div>
+
+<!-- Add a loader div before your content -->
+<div id="loader"></div>
+
+<section class="vh-100">
+    <!-- Rest of your content -->
+</section>
+
+<script>
+    // Add JavaScript to hide the loader once the page is loaded
+    window.addEventListener('load', function() {
+        var loader = document.getElementById('loader');
+        loader.style.display = 'none';
+    });
+</script>
+
+
+{% endblock %}

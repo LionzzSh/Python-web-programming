@@ -1,0 +1,52 @@
+{% set menu = {
+  "Home": url_for('resume.index'),
+  "Biography": url_for('resume.biography'),
+  "Skills": url_for('resume.skills'),
+  "Projects": url_for('resume.projects'),
+  "Feedback": url_for('feedback.feedback'),
+  "ToDo": url_for('todo.todo'),
+  "Users": url_for('profile.users'),
+  "Info": url_for('cookies.info'),
+} %}
+
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/base.css') }}">
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/page.css') }}">
+
+<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Vitalii
+      Shmatolokha
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor02">
+      <ul class="navbar-nav me-auto">
+          {% for name, url in menu.items() %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url }}">{{ name }}</a>
+            </li>
+          {% endfor %}
+      </ul>
+      {% if current_user.is_authenticated %}
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('profile.account')}}">Account</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('profile.logout')}}">Logout</a>
+          </li>
+        </ul>
+      {% else %}
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('profile.registration')}}">Registration</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('profile.login')}}">Login</a>
+          </li>
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</nav>
