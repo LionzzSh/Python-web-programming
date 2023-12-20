@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--fonts-->
+    <link rel='stylesheet'
+          href='https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i|Source+Code+Pro:400,500,600,700'
+          type='text/css' media='screen'/>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto:900" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/base.css') }}">
+    <title>{% block title %}Main{% endblock %}</title>
+</head>
+<body>
+    {% include 'nav.html' %}
+                <div class="margins">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                    <li class="alert alert-success">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
+
+                    {% block content %}
+                        <!-- Content from other pages -->
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
