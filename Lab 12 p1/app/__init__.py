@@ -1,11 +1,11 @@
 import platform
 from flask import Flask, request, jsonify
-from datetime import datetime
+from datetime import datetime, timedelta
 from config import config
 from .extensions import db, migrate, login_manager, jwt
 from jose import jwt as jose_jwt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
-from datetime import timedelta
+
 
 def utility_processor():
     os_info = platform.platform()

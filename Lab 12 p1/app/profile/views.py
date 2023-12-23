@@ -7,23 +7,9 @@ from .models import User
 from app import db
 import os
 from datetime import datetime
-from flask import Blueprint, render_template
+from flask import Blueprint
 
-resume_bp = Blueprint('resume', __name__, template_folder='templates')
-
-common = {
-    'first_name': 'Vitalii',
-    'last_name': 'Shmatolokha',
-}
-
-@resume_bp.route('/base')
-def base():
-    return render_template('resume/base.html')
-
-@resume_bp.route('/index')
-def index():
-    # Your index route logic here
-    return render_template('resume/index.html')
+profile_bp = Blueprint('profile', __name__, template_folder='templates')
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -45,13 +31,13 @@ def login():
         flash("Invalid email or password", category="danger")
         return redirect(url_for("profile.login"))
 
-    return render_template('profile/login.html', form=form, common=common)
+    return render_template('profile/login.html', form=form)
 
 @profile_bp.route('/registration', methods=['GET', 'POST'])
 def registration():
     if current_user.is_authenticated:
         return redirect(url_for('cookies.info'))
-    
+
     form = RegistrationForm()
     if form.validate_on_submit():
         new_user = User(username=form.username.data, email=form.email.data, password=form.password.data)
@@ -65,7 +51,7 @@ def registration():
             flash("ПОМИЛКА, спробуйте використати інші дані", category="danger")
             return redirect(url_for("profile.registration"))
 
-    return render_template("profile/register.html", form=form, common=common)
+    return render_template("profile/register.html", form=form)
 
 @profile_bp.route('/logout', methods=['GET', 'POST'])
 def logout():
@@ -102,14 +88,6 @@ def change_password():
 def users():
     return render_template('profile/users.html', users=User.query.all())
 
-# pic path #
-UPLOAD_FOLDER = 'static/imgs/'
-current_app.config['upload_folder'] = UPLOAD_FOLDER
-
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-# end #
-
 @profile_bp.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
@@ -125,13 +103,13 @@ def account():
             file = request.files['image']
             if file.filename != '':
                 filename = secure_filename(file.filename)
-                file_path = os.path.join(UPLOAD_FOLDER, filename)
+                file_path = os.path.join('static/imgs/', filename)
                 current_user.image_file = filename
 
                 # Move the file to the UPLOAD_FOLDER
-                destination = os.path.join(current_app.root_path, UPLOAD_FOLDER, filename)
-                if not os.path.exists(os.path.join(current_app.root_path, UPLOAD_FOLDER)):
-                    os.makedirs(os.path.join(current_app.root_path, UPLOAD_FOLDER))
+                destination = os.path.join(current_app.root_path, 'static/imgs/', filename)
+                if not os.path.exists(os.path.join(current_app.root_path, 'static/imgs/')):
+                    os.makedirs(os.path.join(current_app.root_path, 'static/imgs/'))
                 file.save(destination)
 
         db.session.commit()
@@ -151,7 +129,7 @@ def account():
         else:
             flash('Current password is incorrect', 'danger')
 
-    return render_template('profile/account.html', update_account_form=update_account_form, change_password_form=change_password_form, is_authenticated=True, os=os, common=common)
+    return render_template('profile/account.html', update_account_form=update_account_form, change_password_form=change_password_form)
 
 @profile_bp.before_request
 def update_last_seen():
