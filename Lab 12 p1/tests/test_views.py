@@ -78,6 +78,13 @@ class ViewsTest(BaseTestCase):
         self.assert200(response)
         self.assertIn(b'Number of users', response.data)
 
+    def test_todo_page_loads_successfully(self):
+        user = User(username='test_user', email='test@example.com', password='test_password')
+        login_user(user, remember=True)
+
+        response = self.client.get(url_for('todo.todo'))
+        self.assert200(response)
+        self.assertIn(b'Todo List', response.data)
 
 
 
