@@ -1,0 +1,74 @@
+/* Avatar Image Styles */
+.profile img {
+  display: block;
+  margin: 0 auto;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  object-fit: cover;
+  width: 100px; /* Adjust the size as needed */
+  height: 100px; /* Adjust the size as needed */
+}
+
+/* Custom Form Styles */
+form.update-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Custom Input Styles */
+.form-control {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+/* Custom Button Styles */
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Profile Information Styles */
+.col-lg-6 {
+  text-align: center;
+}
+
+/* Update and Change Password Section Styles */
+.p-3 {
+  border: 2px solid #ddd;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  padding: 20px;
+}
+
+/* Horizontal Line Style */
+hr {
+  border: 0;
+  height: 1px;
+  background: #ddd;
+  margin: 20px 0;
+}
+
+/* Media Query for Small Screens */
+@media (max-width: 768px) {
+  .col-lg-6 {
+    margin-bottom: 30px;
+  }
+  .profile img {
+    width: 80px;
+    height: 80px;
+  }
+}

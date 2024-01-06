@@ -1,0 +1,94 @@
+/* page.css */
+
+body {
+    height: 100vh;
+    font-family: 'Open Sans', sans-serif;
+  }
+  
+  .navbar-ul {
+    background-color: white;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+  }
+  
+  .list-inline {
+    display: flex;
+    text-decoration: none;
+    justify-content: space-around;
+    margin: 20px 0;
+    width: 50%;
+  }
+  
+  @media only screen and (max-width: 1094px) {
+    .list-inline {
+      width: 100%;
+    }
+  
+    .navbar-ref {
+      color: #808080;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 14px;
+    }
+  }
+  
+  a::selection,
+  span::selection {
+    background: #ffb7b7; /* WebKit/Blink Browsers */
+  }
+  
+  a::selection,
+  span::-moz-selection {
+    background: #ffb7b7; /* Gecko Browsers */
+  }
+  
+
+/* page.css */
+
+/* Navigation bar styles */
+.navbar {
+    background-color: #343a40; /* Dark background color */
+  }
+  
+  .navbar-brand {
+    color: #ffffff; /* Text color for the brand */
+    font-weight: bold; /* Make the brand text bold */
+  }
+  
+  .navbar-toggler-icon {
+    background-color: #ffffff; /* Color for the toggler icon */
+  }
+  
+  .navbar-toggler {
+    border: none; /* Remove border for the toggler button */
+  }
+  
+  .navbar-toggler:focus {
+    outline: none; /* Remove focus outline for the toggler button */
+  }
+  
+  .navbar-nav .nav-link {
+    color: #ffffff; /* Text color for the links */
+    font-weight: bold; /* Make the link text bold */
+  }
+  
+  .navbar-nav .nav-link:hover {
+    color: #f8f9fa; /* Text color for the links on hover */
+  }
+  
+  /* Responsive styles for the brand and toggler icon */
+  @media (max-width: 991.98px) {
+    .navbar-brand,
+    .navbar-toggler-icon {
+      color: #ffffff; /* Text color for the brand and icon */
+    }
+  }
+  
+  /* Container fluid styles */
+  .container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+  

@@ -1,0 +1,151 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 50px;
+}
+
+h1 {
+    color: #333;
+}
+
+.card {
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    font-size: 24px;
+}
+
+.card-subtitle {
+    color: #666;
+}
+
+.card-text {
+    margin-top: 10px;
+    color: #555;
+}
+
+/* Animation Styles */
+@keyframes moveContent {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+.btn {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Form Header Styles */
+.form-header {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px 5px 0 0;
+}
+
+/* Success Message Styles */
+.success-message {
+    color: #5bc0de;
+    font-size: 14px;
+}
+
+/* Error Message Styles */
+.error-message {
+    color: #d9534f;
+    font-size: 14px;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+/* Animation Styles */
+@keyframes moveContent {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Apply Animation */
+.container, form {
+    animation: moveContent 0.5s ease-in-out;
+}
+
+.round_style {
+    border-radius: 100%;
+    box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+    border: 3px solid silver;
+}
+
+/* Add your custom styles for the user account update page */
+
+.container {
+    margin-top: 20px;
+}
+
+.border {
+    border: 1px solid #e2e2e2;
+}
+
+.rounded-circle {
+    border-radius: 50%;
+}
+
+.update-form {
+    margin-top: 20px;
+}
+
+.last-seen {
+    color: #6c757d;
+}
+
+/* Add more custom styles as needed */

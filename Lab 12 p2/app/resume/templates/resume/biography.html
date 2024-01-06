@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/biography.css') }}">
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename = 'css/projects.css') }}">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<div class="container">
+    <div class="row">
+        {% for year in biography %}
+            {% for event in year.events %}
+                <div class="col-12">
+                    <span class="date">{{ year.year }}</span>
+                    <div class="icon-title">
+                        <i class="tiny material-icons">{{ event.icon }}</i>
+                        <a href="/biography" class="title">{{ event.title }}</a>
+                    </div>
+                    <span class="content">{{ event.content }}</span>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    <br>
+    <br>
+</div>
+{% endblock %}
