@@ -1,16 +1,40 @@
 from flask import jsonify, request
+from flask_httpauth import HTTPBasicAuth
 from sqlalchemy.exc import IntegrityError
+from flask_jwt_extended import create_access_token, jwt_required
+from werkzeug.security import check_password_hash
+from app.profile.views import User
 from . import api_bp
 from app.todo.models import Todo
 from app import db
 
-@api_bp.route('/ban', methods=['GET'])
+basic_auth = HTTPBasicAuth()
+
+
+@basic_auth.verify_password
+def authenticate(email, password):
+    user = User.query.filter_by(email=email).first()
+    if user and user.checkPassword(password):
+        return email
+
+@basic_auth.error_handler
+def handle_auth_error(status):
+    return jsonify(message="Authentication failed"), status
+
+@api_bp.route('/login', methods=['POST'])
+@basic_auth.login_required
+def perform_login():
+    access_token = create_access_token(identity=basic_auth.current_user())
+    return jsonify(access_token=access_token)
+
+@api_bp.route('/ping', methods=['GET'])
 def ping():
     return jsonify({
-        "message": "you get banned"
+        "message": "pong"
     })
 
 @api_bp.route('/todos', methods=['GET'])
+@jwt_required()
 def get_todos():
     todos = Todo.query.all()
 
@@ -28,6 +52,7 @@ def get_todos():
     return jsonify(todo_list)
 
 @api_bp.route('/todos', methods=['POST'])
+@jwt_required()
 def post_todos():
     new_data = request.get_json()
 
@@ -51,6 +76,7 @@ def post_todos():
     }), 201
 
 @api_bp.route('/todos/<int:id>', methods=['GET'])
+@jwt_required()
 def get_todo(id):
     todo = Todo.query.filter_by(id=id).first()
 
@@ -64,6 +90,7 @@ def get_todo(id):
     }), 200
 
 @api_bp.route('/todos/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_todo(id):
     todo = Todo.query.filter_by(id=id).first()
 
@@ -91,6 +118,7 @@ def update_todo(id):
     }), 204
 
 @api_bp.route('/todos/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_todo(id):
     todo = Todo.query.get(id)
 
