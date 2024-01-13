@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% from "render_field.html" import render_field %}
+{% block title %}Posts List{% endblock %}
+{% block content %}
+
+<!-- Bootstrap JS and Popper.js-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col-6">
+      <h1>Posts List</h1>
+    </div>
+      <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+        <a href="{{url_for('posts.categories_page')}}" class="btn btn-outline-success btn-custom">
+            Categories
+            <span class="badge rounded-pill bg-secondary">{{categ_count}}</span>
+        </a>
+        <a href="{{url_for('posts.tags_page')}}" class="btn btn-outline-success btn-custom">
+            Tags
+            <span class="badge rounded-pill bg-secondary">{{teg_count}}</span>
+        </a>
+    </div>
+    <div class="col-6 text-right">
+        <br>
+      <a href="{{url_for('posts.add_post')}}" class="btn btn-primary">Create New Post</a>
+    </div>
+  </div>
+
+  <div class="row">
+      {% for post in pagination.items %}
+      {% if post.enabled or post.user.id == current_user.id %}
+        <div class="col-md-6 mb-4">
+          <div class="post-card">
+            {% if post.image %}
+            <div class="post-image" style="background-image: url'{{ url_for('static', filename='posts_image/' + post.image) }}'"></div>
+              <div class="post-overlay">
+                <div class="post-header">
+                  <h2 class="post-title">{{ post.title }}</h2>
+                  <span class="post-type">{{ post.type.name }}</span>
+                    <span class="post-type">{{ post.category.name }}</span>
+                </div>
+                <h6 class="post-user">{{ post.user.username }}</h6>
+                <p class="post-text">{{ post.text | truncate(150) }}</p>
+                 {% for tag in post.tags%}
+                  <span class="badge rounded-pill bg-light">#{{tag.name}}</span>
+                {% endfor%}
+                <p class="post-details">
+                  <span class="post-created">{{ post.created.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                  {% if not post.enabled %}
+                    (disabled)
+                  {% endif %}
+                  <a href="{{url_for('posts.post_page', id=post.id)}}" class="btn btn-info read-post-btn">Read Post</a>
+                </p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+      <div class="d-flex justify-content-center">
+            <ul class="pagination">
+              <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('posts.posts_page', page=pagination.prev_num, category=form.category.data) }}">«</a>
+              </li>
+
+
+              {% for page in pagination.iter_pages(left_edge=2, left_current=1, right_current=1, right_edge=2) %}
+                <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('posts.posts_page', page=page, category=form.category.data) }}">
+                      {{ page or "..." }}
+                    </a>
+                </li>
+              {% endfor %}
+
+              <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('posts.posts_page', page=pagination.next_num, category=form.category.data) }}">»</a>
+              </li>
+            </ul>
+          </div>
+  </div>
+
+</div>
+
+{% endblock %}

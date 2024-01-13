@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% from "render_field.html" import render_field %}
+{% block title %}Post Page{% endblock %}
+{% block content %}
+    {% if post.enabled or post.user.id == current_user.id %}
+        <div class="custom-post-container mt-4">
+            {% if post.user.id == current_user.id %}
+                <div class="mb-3">
+                    <a href="{{url_for('posts.update_post', id=post.id)}}" class="btn btn-primary">Update Post</a>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Post</button>
+                </div>
+            {% endif %}
+            <div class="mb-3">
+                <!-- Use a correct image path  image path:app\posts\static\aligator.png-->
+              <img src="{{ url_for('posts.static', filename=post.image) }}" class="custom-post-image" alt="Post Image">
+            </div>
+            <div class="mb-3">
+                <h2 class="custom-post-title">{{ post.title }}</h2>
+                <p class="custom-post-type">Post Type: {{ post.type.name }}</p>
+                <p class="custom-post-author">Author: {{ post.user.username }}</p>
+                <p class="custom-post-created">Created: {{ post.created.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                <p class="custom-post-created">{{ post.category.name }}</p>
+                <p class="custom-post-content">{{ post.text }}</p>
+                {% for tag in post.tags %}
+                    <span class="badge rounded-pill bg-light">#{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Delete Post Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Delete Post</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this post?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <form id="deleteForm" action="{{url_for('posts.delete_post', id=post.id)}}" method="post">
+                            <button type="submit" class="btn btn-danger">Delete Post</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+<!-- Bootstrap JS and Popper.js-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
