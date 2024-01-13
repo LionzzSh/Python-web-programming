@@ -2,7 +2,7 @@ import platform
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
 from config import config
-from .extensions import db, migrate, login_manager, jwt
+from .extensions import db, migrate, login_manager, jwt, ma
 from jose import jwt as jose_jwt
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 
@@ -26,6 +26,7 @@ def create_app(config_name='DEF'):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     jwt.init_app(app)
+    ma.init_app(app)
 
     # Configure login_manager
     login_manager.login_view = 'profile.login'
@@ -55,6 +56,8 @@ def create_app(config_name='DEF'):
         from app.api.views import api_bp
         from app.phones.views import phones_bp
         from app.posts.views import posts_bp
+        from app.user_api.views import user_api_bp
+        from app.swagger import swagger_bp
 
         app.register_blueprint(resume_bp, url_prefix='/')
         app.register_blueprint(cookies_bp, url_prefix='/cookies')
@@ -64,5 +67,7 @@ def create_app(config_name='DEF'):
         app.register_blueprint(api_bp, url_prefix='/api')
         app.register_blueprint(phones_bp, url_prefix='/phones_api')
         app.register_blueprint(posts_bp, url_prefix='/posts')
+        app.register_blueprint(user_api_bp, url_prefix='/user_api/')
+        app.register_blueprint(swagger_bp, url_prefix='/swagger')
 
     return app
